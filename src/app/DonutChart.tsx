@@ -63,10 +63,7 @@ export default function DonutChart({
                     strokeDashoffset={s.offset}
                     strokeLinecap="butt"
                   >
-                    <title>
-                      {s.label}: {s.value.toLocaleString("ko-KR")}
-                      {unit} ({s.pct.toFixed(0)}%)
-                    </title>
+                    <title>{`${s.label}: ${s.value.toLocaleString("ko-KR")}${unit} (${s.pct.toFixed(0)}%)`}</title>
                   </circle>
                 ))}
               </g>
