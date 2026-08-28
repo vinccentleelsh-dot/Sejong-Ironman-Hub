@@ -1,0 +1,140 @@
+import { cookies, headers } from "next/headers";
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+// 회원 로그인은 없음 — 운영자 전용 비밀번호 1개로 "쓰기 권한"만 구분한다.
+// (요구사항 정의서 결정 로그: "간단한 운영자 암호 1개면 충분")
+//
+// 쿠키에는 비밀번호 원문이 아니라, 서버 비밀키로 서명한 토큰만 저장한다.
+
+const COOKIE_NAME = "admin_token";
+const MARKER = "sejong-admin-authenticated";
+
+function sign(value: string, secret: string) {
+  return createHmac("sha256", secret).update(value).digest("hex");
+}
+
+function getSecret() {
+  const secret = process.env.ADMIN_SESSION_SECRET;
+  if (!secret) {
+    throw new Error("ADMIN_SESSION_SECRET 환경변수가 설정되어 있지 않습니다 (.env 확인).");
+  }
+  return secret;
+}
+
+export function checkAdminPassword(password: string): boolean {
+  const expected = process.env.ADMIN_PASSWORD;
+  if (!expected) return false;
+  // 길이가 다르면 timingSafeEqual이 바로 예외를 던지므로 먼저 길이를 맞춰 비교한다.
+  const a = Buffer.from(password);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
+export function makeAdminToken(): string {
+  return sign(MARKER, getSecret());
+}
+
+export async function setAdminCookie() {
+  const store = await cookies();
+  store.set(COOKIE_NAME, makeAdminToken(), {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30, // 30일
+  });
+}
+
+export async function clearAdminCookie() {
+  const store = await cookies();
+  store.delete(COOKIE_NAME);
+}
+
+export async function isAdmin(): Promise<boolean> {
+  const store = await cookies();
+  const token = store.get(COOKIE_NAME)?.value;
+  if (!token) return false;
+  const expected = makeAdminToken();
+  const a = Buffer.from(token);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
+export async function requireAdmin() {
+  if (!(await isAdmin())) {
+    throw new Error("운영자 권한이 필요합니다. 먼저 로그인해주세요.");
+  }
+}
+
+// "세종철인 인증" — 대회기록(/competitions) 전용 게이트. 운영자 인증과는 완전히 별개 쿠키·
+// 비밀번호를 쓴다 (지금 값은 우연히 같지만, 나중에 서로 다르게 바꿀 수 있어야 하므로).
+// 열람·등록·수정·삭제·참가 전부 이 인증을 요구한다 — 실수/악의로 지워지는 것에 대한 안전망은
+// 감사로그 + 자동 백업(스냅샷)으로 별도 확보한다.
+
+const SEJONG_COOKIE_NAME = "sejong_auth_token";
+const SEJONG_MARKER = "sejong-competitions-authenticated";
+
+function getSejongSecret() {
+  const secret = process.env.SEJONG_AUTH_SESSION_SECRET;
+  if (!secret) {
+    throw new Error("SEJONG_AUTH_SESSION_SECRET 환경변수가 설정되어 있지 않습니다 (.env 확인).");
+  }
+  return secret;
+}
+
+export function checkSejongPassword(password: string): boolean {
+  const expected = process.env.SEJONG_AUTH_PASSWORD;
+  if (!expected) return false;
+  const a = Buffer.from(password);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
+function makeSejongToken(): string {
+  return sign(SEJONG_MARKER, getSejongSecret());
+}
+
+export async function setSejongAuthCookie() {
+  const store = await cookies();
+  store.set(SEJONG_COOKIE_NAME, makeSejongToken(), {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30, // 30일
+  });
+}
+
+export async function clearSejongAuthCookie() {
+  const store = await cookies();
+  store.delete(SEJONG_COOKIE_NAME);
+}
+
+export async function isSejongAuthed(): Promise<boolean> {
+  const store = await cookies();
+  const token = store.get(SEJONG_COOKIE_NAME)?.value;
+  if (!token) return false;
+  const expected = makeSejongToken();
+  const a = Buffer.from(token);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
+export async function requireSejongAuth() {
+  if (!(await isSejongAuthed())) {
+    throw new Error("세종철인 인증이 필요합니다. 먼저 비밀번호를 입력해주세요.");
+  }
+}
+
+// 감사로그용 — 로컬/사설망에서는 정확한 클라이언트 IP를 못 받을 수 있음 (최선 노력).
+export async function getRequestMeta(): Promise<{ ipAddress: string | null; userAgent: string | null }> {
+  const h = await headers();
+  const ipAddress =
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    h.get("x-real-ip") ||
+    null;
+  const userAgent = h.get("user-agent");
+  return { ipAddress, userAgent };
+}

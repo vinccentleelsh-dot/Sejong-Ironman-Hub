@@ -1,0 +1,2881 @@
+{
+  "generatedNote": "Sheet1(세철포인트)에서 추출: 세션 날짜/분류/포인트 + (있으면) 훈련세부내용·종목별거리. 리더/보급(Sheet2)은 여전히 미포함.",
+  "landmarks": {
+    "dateRowNum": 1,
+    "headerRowNum": 3,
+    "detailRowNum": 4,
+    "swimRowNum": 5,
+    "cycleRowNum": 6,
+    "runRowNum": 7,
+    "opsRowNum": 8,
+    "memberStartRow": 10,
+    "totalsRowNum": 65
+  },
+  "sessionCount": 65,
+  "memberCount": 55,
+  "dateParseFailures": [],
+  "memberCrossCheckMismatches": [],
+  "participantCrossCheckMismatches": [
+    {
+      "col": 43,
+      "date": "2026-08-08",
+      "label": "정기훈련",
+      "excelParticipants": 8,
+      "computedParticipants": 7
+    }
+  ],
+  "sessions": [
+    {
+      "col": 3,
+      "date": "2026-01-01",
+      "label": "공식행사",
+      "category": "OFFICIAL_EVENT",
+      "description": "해맞이 행사 (이응교)",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": 10,
+      "disciplines": "RUN",
+      "excelParticipants": 21
+    },
+    {
+      "col": 4,
+      "date": "2026-01-03",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Swim 장거리 수영 2000m (추목 수영장)",
+      "swimKm": 2,
+      "bikeKm": null,
+      "runKm": 8,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 15
+    },
+    {
+      "col": 5,
+      "date": "2026-01-10",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "학나래교 Run (기상 악화)",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 11
+    },
+    {
+      "col": 6,
+      "date": "2026-01-17",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Run 호수공원 20km + Swim 청사 수영장",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 14
+    },
+    {
+      "col": 7,
+      "date": "2026-01-24",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Swim 장거리 수영 2000m (추목 수영장) & Run 5K",
+      "swimKm": 2,
+      "bikeKm": null,
+      "runKm": 8,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 10
+    },
+    {
+      "col": 8,
+      "date": "2026-02-01",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": " 캠퍼스고 트랙 15K Run",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 15
+    },
+    {
+      "col": 9,
+      "date": "2026-02-07",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "학나래교 Run (기상 악화)",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 4
+    },
+    {
+      "col": 10,
+      "date": "2026-02-22",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "학나래교 Run (기상 악화)",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 11
+    },
+    {
+      "col": 11,
+      "date": "2026-02-28",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "고복저수지 라이딩",
+      "swimKm": null,
+      "bikeKm": 45,
+      "runKm": null,
+      "disciplines": "BIKE",
+      "excelParticipants": 5
+    },
+    {
+      "col": 12,
+      "date": "2026-03-07",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "학나래교 런",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 18
+    },
+    {
+      "col": 13,
+      "date": "2026-03-14",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Swim 장거리 수영 2000m (추목 수영장)) & Run 5K",
+      "swimKm": 2,
+      "bikeKm": null,
+      "runKm": 8,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 9
+    },
+    {
+      "col": 14,
+      "date": "2026-03-21",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Bike 첫 야외 라이딩 참샘-항공대 V코스",
+      "swimKm": null,
+      "bikeKm": 52,
+      "runKm": 4,
+      "disciplines": "BIKE,RUN",
+      "excelParticipants": 5
+    },
+    {
+      "col": 15,
+      "date": "2026-03-29",
+      "label": "대회",
+      "category": "COMPETITION",
+      "description": "나주듀애슬론",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": 3
+    },
+    {
+      "col": 16,
+      "date": "2026-03-28",
+      "label": "공식행사",
+      "category": "OFFICIAL_EVENT",
+      "description": "안전기원제",
+      "swimKm": null,
+      "bikeKm": 30,
+      "runKm": 5,
+      "disciplines": "BIKE,RUN",
+      "excelParticipants": 27
+    },
+    {
+      "col": 17,
+      "date": "2026-04-04",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "학나래교 런",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 4
+    },
+    {
+      "col": 18,
+      "date": "2026-04-11",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "마곡사 라이딩",
+      "swimKm": null,
+      "bikeKm": 90,
+      "runKm": 3,
+      "disciplines": "BIKE,RUN",
+      "excelParticipants": 9
+    },
+    {
+      "col": 19,
+      "date": "2026-04-16",
+      "label": "대회",
+      "category": "COMPETITION",
+      "description": "미야코지마",
+      "swimKm": 3,
+      "bikeKm": 120,
+      "runKm": 42,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 2
+    },
+    {
+      "col": 20,
+      "date": "2026-04-18",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Run 20K 산울동 트랙",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 12
+    },
+    {
+      "col": 21,
+      "date": "2026-04-26",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "추목3종",
+      "swimKm": 1.5,
+      "bikeKm": 30,
+      "runKm": 7,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 10
+    },
+    {
+      "col": 22,
+      "date": "2026-04-26",
+      "label": "대회",
+      "category": "COMPETITION",
+      "description": "생체-통영",
+      "swimKm": 1.5,
+      "bikeKm": 40,
+      "runKm": 10,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 2
+    },
+    {
+      "col": 23,
+      "date": "2026-05-01",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "오동리 사이클 및 근전환",
+      "swimKm": null,
+      "bikeKm": 90,
+      "runKm": 4,
+      "disciplines": "BIKE,RUN",
+      "excelParticipants": 11
+    },
+    {
+      "col": 24,
+      "date": "2026-05-03",
+      "label": "대회",
+      "category": "COMPETITION",
+      "description": "마산대회",
+      "swimKm": 1.5,
+      "bikeKm": 40,
+      "runKm": 10,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 2
+    },
+    {
+      "col": 25,
+      "date": "2026-05-09",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "참샘3종",
+      "swimKm": 1,
+      "bikeKm": 30,
+      "runKm": 5,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 13
+    },
+    {
+      "col": 26,
+      "date": "2026-05-10",
+      "label": "대구대회",
+      "category": "COMPETITION",
+      "description": null,
+      "swimKm": 1.5,
+      "bikeKm": 40,
+      "runKm": 10,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 1
+    },
+    {
+      "col": 27,
+      "date": "2026-05-16",
+      "label": "공식행사(장흥 단체대회)",
+      "category": "OFFICIAL_EVENT",
+      "description": null,
+      "swimKm": 1.5,
+      "bikeKm": 40,
+      "runKm": 10,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 33
+    },
+    {
+      "col": 28,
+      "date": "2026-05-23",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "대청댐 오픈워터 및 싸이클",
+      "swimKm": 2,
+      "bikeKm": 30,
+      "runKm": null,
+      "disciplines": "SWIM,BIKE",
+      "excelParticipants": 16
+    },
+    {
+      "col": 29,
+      "date": "2026-05-31",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Bike 오동리 60~90km\r\nRun 근전환 3~5km",
+      "swimKm": null,
+      "bikeKm": 60,
+      "runKm": 4,
+      "disciplines": "BIKE,RUN",
+      "excelParticipants": 11
+    },
+    {
+      "col": 30,
+      "date": "2026-06-06",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "유관순열사기념관 라이딩 &병천순대로 전환",
+      "swimKm": null,
+      "bikeKm": 90,
+      "runKm": null,
+      "disciplines": "BIKE",
+      "excelParticipants": 7
+    },
+    {
+      "col": 31,
+      "date": "2026-06-07",
+      "label": "나주 대회",
+      "category": "COMPETITION",
+      "description": null,
+      "swimKm": 3.8,
+      "bikeKm": 180,
+      "runKm": 42,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": null
+    },
+    {
+      "col": 32,
+      "date": "2026-06-13",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "바람재 3종",
+      "swimKm": 1,
+      "bikeKm": 60,
+      "runKm": 3,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 11
+    },
+    {
+      "col": 33,
+      "date": "2026-06-14",
+      "label": "고성 70.3대회",
+      "category": "COMPETITION",
+      "description": null,
+      "swimKm": 1.9,
+      "bikeKm": 90,
+      "runKm": 21,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": null
+    },
+    {
+      "col": 34,
+      "date": "2026-06-20",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Run 20K 산울동 트랙(세종캠퍼스고등학교 주차장 옆)",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "RUN",
+      "excelParticipants": 11
+    },
+    {
+      "col": 35,
+      "date": "2026-06-21",
+      "label": "제주 태철 대회",
+      "category": "COMPETITION",
+      "description": null,
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 36,
+      "date": "2026-06-28",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Trail run 수통골 (계룡산)",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": 10,
+      "disciplines": "RUN",
+      "excelParticipants": 5
+    },
+    {
+      "col": 37,
+      "date": "2026-07-04",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "추목 3종",
+      "swimKm": 1.5,
+      "bikeKm": 20,
+      "runKm": 7,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": null
+    },
+    {
+      "col": 38,
+      "date": "2026-07-11",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Bike 마곡사 (A/B조)  & 학나래교 런 5K",
+      "swimKm": null,
+      "bikeKm": 90,
+      "runKm": null,
+      "disciplines": "BIKE",
+      "excelParticipants": 9
+    },
+    {
+      "col": 39,
+      "date": "2026-07-12",
+      "label": "군산챌린지70.3",
+      "category": "COMPETITION",
+      "description": null,
+      "swimKm": 1.9,
+      "bikeKm": 90,
+      "runKm": 21,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 3
+    },
+    {
+      "col": 40,
+      "date": "2026-07-17",
+      "label": "공식행사",
+      "category": "OFFICIAL_EVENT",
+      "description": "영덕아이언맨 70.3",
+      "swimKm": 0.3,
+      "bikeKm": 75,
+      "runKm": 5,
+      "disciplines": "SWIM,BIKE,RUN",
+      "excelParticipants": 25
+    },
+    {
+      "col": 41,
+      "date": "2026-07-26",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "오동리 사이클 & 근전환",
+      "swimKm": null,
+      "bikeKm": 60,
+      "runKm": 5,
+      "disciplines": "BIKE,RUN",
+      "excelParticipants": 8
+    },
+    {
+      "col": 42,
+      "date": "2026-08-01",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "마곡사 라이딩",
+      "swimKm": null,
+      "bikeKm": 90,
+      "runKm": 3,
+      "disciplines": "BIKE,RUN",
+      "excelParticipants": 4
+    },
+    {
+      "col": 43,
+      "date": "2026-08-08",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Run 호수공원 20km + Swim 청사 수영장",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": 8
+    },
+    {
+      "col": 44,
+      "date": "2026-08-15",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "원수산 둘레길 무한뺑뺑이런 ",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": 25,
+      "disciplines": "RUN",
+      "excelParticipants": null
+    },
+    {
+      "col": 45,
+      "date": "2026-08-22",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Run 세종시민운동장 (조치원트랙)",
+      "swimKm": 1,
+      "bikeKm": null,
+      "runKm": 15,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": null
+    },
+    {
+      "col": 46,
+      "date": "2026-08-30",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Swim 바다수영(대천 또는 서천, 태안 중 1) & Run 5K",
+      "swimKm": 1.5,
+      "bikeKm": null,
+      "runKm": 10,
+      "disciplines": "SWIM,RUN",
+      "excelParticipants": null
+    },
+    {
+      "col": 47,
+      "date": "2026-09-05",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Bike 마곡사 (A/B조)  & 학나래교 런 5K",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 48,
+      "date": "2026-09-12",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Bike 오동리 60~90km\r\nRun 근전환 3~5km",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 49,
+      "date": "2026-09-20",
+      "label": "공식행사",
+      "category": "OFFICIAL_EVENT",
+      "description": "충주단체대회",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 50,
+      "date": "2026-09-26",
+      "label": "추석 자율훈련",
+      "category": "FREE_TRAINING",
+      "description": "추석 연휴",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 51,
+      "date": "2026-10-03",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Run 장거리 달리기 (이응교 북측 - 합강)",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 52,
+      "date": "2026-10-04",
+      "label": "구례 대회",
+      "category": "COMPETITION",
+      "description": "구례 IRONMAN",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 53,
+      "date": "2026-10-10",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Bike 피노키오 코스",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 54,
+      "date": "2026-10-11",
+      "label": "남해 킹하프대회",
+      "category": "COMPETITION",
+      "description": "남해 한국철인대회 223K",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 55,
+      "date": "2026-10-17",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Bike 자운대 30km (5km x 6lab)\r\nRun 자운대 10km\r\nSwim 추목수영장 1,500m",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 56,
+      "date": "2026-10-24",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Run 숲뜰근린공원 (학나래교) 15~20km ",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 57,
+      "date": "2026-10-25",
+      "label": "통영 대회",
+      "category": "COMPETITION",
+      "description": "통영 철인3종 대회",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 58,
+      "date": "2026-11-01",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Bike  라이딩 세종보-궁남지",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 59,
+      "date": "2026-11-07",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Run 호수공원 20km (+ Swim 청사 수영장)",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 60,
+      "date": "2026-11-14",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Swim 장거리 수영 2000m (추목 수영장) & Run 5K",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 61,
+      "date": "2026-11-21",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Bike 마티고개",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 62,
+      "date": "2026-11-29",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Trail run 금남초-바람재 쉼터-금병산\r\n→ 숲뜰근린공원 집결 학나래교 보행로 Run (기상 악화)",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 63,
+      "date": "2026-12-05",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Swim 장거리 수영 2000m (추목 수영장) & Run 5K",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 64,
+      "date": "2026-12-05",
+      "label": "공식행사(송년회)",
+      "category": "OFFICIAL_EVENT",
+      "description": "세종철인의 밤",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 65,
+      "date": "2026-12-12",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Trail run  세종 둘레 트레일런\r\n→ 숲뜰근린공원 집결 학나래교 보행로 Run (기상 악화)",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 66,
+      "date": "2026-12-19",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Swim 장거리 수영 2000m (추목 수영장) + Run 5K",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    },
+    {
+      "col": 67,
+      "date": "2026-12-27",
+      "label": "정기훈련",
+      "category": "REGULAR",
+      "description": "Run 세종시민운동장 (조치원트랙)\r\n→ 숲뜰 근린공원 집결 학나래교 보행로 Run(기상 악화)",
+      "swimKm": null,
+      "bikeKm": null,
+      "runKm": null,
+      "disciplines": null,
+      "excelParticipants": null
+    }
+  ],
+  "members": [
+    {
+      "name": "John McGrath",
+      "excelTotal": 44,
+      "excelRank": 21,
+      "computedTotal": 44,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 7,
+          "points": 3
+        },
+        {
+          "col": 14,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 45,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "강수미",
+      "excelTotal": 49,
+      "excelRank": 17,
+      "computedTotal": 49,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 5
+        },
+        {
+          "col": 10,
+          "points": 5
+        },
+        {
+          "col": 12,
+          "points": 5
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 5
+        },
+        {
+          "col": 21,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        }
+      ]
+    },
+    {
+      "name": "고준",
+      "excelTotal": 54,
+      "excelRank": 14,
+      "computedTotal": 54,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 9,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 30
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 41,
+          "points": 3
+        },
+        {
+          "col": 44,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "곽비룡",
+      "excelTotal": 47,
+      "excelRank": 18,
+      "computedTotal": 47,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 32,
+          "points": 3
+        },
+        {
+          "col": 38,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 43,
+          "points": 3
+        },
+        {
+          "col": 44,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "곽승철",
+      "excelTotal": 69,
+      "excelRank": 10,
+      "computedTotal": 69,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 5,
+          "points": 5
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 5
+        },
+        {
+          "col": 10,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 18,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 30
+        },
+        {
+          "col": 28,
+          "points": 5
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "권오준",
+      "excelTotal": 20,
+      "excelRank": 41,
+      "computedTotal": 20,
+      "attendance": [
+        {
+          "col": 27,
+          "points": 20
+        }
+      ]
+    },
+    {
+      "name": "김남훈",
+      "excelTotal": 29,
+      "excelRank": 29,
+      "computedTotal": 29,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        }
+      ]
+    },
+    {
+      "name": "김덕겸",
+      "excelTotal": 78,
+      "excelRank": 9,
+      "computedTotal": 78,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 5,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 11,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 30
+        },
+        {
+          "col": 32,
+          "points": 3
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 38,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 42,
+          "points": 3
+        },
+        {
+          "col": 44,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "김두영",
+      "excelTotal": 23,
+      "excelRank": 38,
+      "computedTotal": 23,
+      "attendance": [
+        {
+          "col": 5,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        }
+      ]
+    },
+    {
+      "name": "김민수a",
+      "excelTotal": 69,
+      "excelRank": 10,
+      "computedTotal": 69,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 7,
+          "points": 3
+        },
+        {
+          "col": 10,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 30
+        },
+        {
+          "col": 30,
+          "points": 3
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 37,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "김민수b",
+      "excelTotal": 36,
+      "excelRank": 27,
+      "computedTotal": 36,
+      "attendance": [
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 15,
+          "points": 30
+        },
+        {
+          "col": 16,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "김봉수",
+      "excelTotal": 131,
+      "excelRank": 2,
+      "computedTotal": 131,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 5
+        },
+        {
+          "col": 5,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 7,
+          "points": 5
+        },
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 9,
+          "points": 3
+        },
+        {
+          "col": 11,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 13,
+          "points": 3
+        },
+        {
+          "col": 14,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 17,
+          "points": 3
+        },
+        {
+          "col": 18,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 21,
+          "points": 3
+        },
+        {
+          "col": 24,
+          "points": 20
+        },
+        {
+          "col": 27,
+          "points": 30
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 37,
+          "points": 3
+        },
+        {
+          "col": 38,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 42,
+          "points": 3
+        },
+        {
+          "col": 44,
+          "points": 3
+        },
+        {
+          "col": 45,
+          "points": 5
+        }
+      ]
+    },
+    {
+      "name": "김성기",
+      "excelTotal": 84,
+      "excelRank": 6,
+      "computedTotal": 84,
+      "attendance": [
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 15,
+          "points": 30
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 39,
+          "points": 30
+        },
+        {
+          "col": 41,
+          "points": 3
+        },
+        {
+          "col": 43,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "김승현",
+      "excelTotal": 188,
+      "excelRank": 1,
+      "computedTotal": 188,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 7,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 10,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 13,
+          "points": 3
+        },
+        {
+          "col": 15,
+          "points": 30
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 17,
+          "points": 3
+        },
+        {
+          "col": 18,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 30
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 31,
+          "points": 50
+        },
+        {
+          "col": 32,
+          "points": 3
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 36,
+          "points": 3
+        },
+        {
+          "col": 37,
+          "points": 3
+        },
+        {
+          "col": 38,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 41,
+          "points": 3
+        },
+        {
+          "col": 42,
+          "points": 3
+        },
+        {
+          "col": 43,
+          "points": 3
+        },
+        {
+          "col": 44,
+          "points": 3
+        },
+        {
+          "col": 45,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "김시현",
+      "excelTotal": 26,
+      "excelRank": 33,
+      "computedTotal": 26,
+      "attendance": [
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "김은숙",
+      "excelTotal": 0,
+      "excelRank": 50,
+      "computedTotal": 0,
+      "attendance": []
+    },
+    {
+      "name": "김재산",
+      "excelTotal": 58,
+      "excelRank": 12,
+      "computedTotal": 58,
+      "attendance": [
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 18,
+          "points": 3
+        },
+        {
+          "col": 22,
+          "points": 20
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "김진환",
+      "excelTotal": 23,
+      "excelRank": 38,
+      "computedTotal": 23,
+      "attendance": [
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        }
+      ]
+    },
+    {
+      "name": "김창수",
+      "excelTotal": 56,
+      "excelRank": 13,
+      "computedTotal": 56,
+      "attendance": [
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 13,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 18,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 26,
+          "points": 20
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 30,
+          "points": 3
+        },
+        {
+          "col": 32,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 41,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "김홍중",
+      "excelTotal": 9,
+      "excelRank": 44,
+      "computedTotal": 9,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "남승현",
+      "excelTotal": 38,
+      "excelRank": 26,
+      "computedTotal": 38,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 36,
+          "points": 3
+        },
+        {
+          "col": 43,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "박민규",
+      "excelTotal": 29,
+      "excelRank": 29,
+      "computedTotal": 29,
+      "attendance": [
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 44,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "박성일",
+      "excelTotal": 45,
+      "excelRank": 19,
+      "computedTotal": 45,
+      "attendance": [
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 30,
+          "points": 3
+        },
+        {
+          "col": 32,
+          "points": 3
+        },
+        {
+          "col": 39,
+          "points": 30
+        },
+        {
+          "col": 41,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "박진희",
+      "excelTotal": 12,
+      "excelRank": 43,
+      "computedTotal": 12,
+      "attendance": [
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 5,
+          "points": 3
+        },
+        {
+          "col": 7,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "박초희",
+      "excelTotal": 6,
+      "excelRank": 46,
+      "computedTotal": 6,
+      "attendance": [
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "빈태욱",
+      "excelTotal": 32,
+      "excelRank": 28,
+      "computedTotal": 32,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 28,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "서동민",
+      "excelTotal": 45,
+      "excelRank": 19,
+      "computedTotal": 45,
+      "attendance": [
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 30
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "서민재",
+      "excelTotal": 15,
+      "excelRank": 42,
+      "computedTotal": 15,
+      "attendance": [
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 36,
+          "points": 3
+        },
+        {
+          "col": 38,
+          "points": 3
+        },
+        {
+          "col": 44,
+          "points": 3
+        },
+        {
+          "col": 45,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "신재광",
+      "excelTotal": 100,
+      "excelRank": 5,
+      "computedTotal": 100,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 9,
+          "points": 3
+        },
+        {
+          "col": 10,
+          "points": 3
+        },
+        {
+          "col": 11,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 24,
+          "points": 20
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 39,
+          "points": 30
+        },
+        {
+          "col": 42,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "서정수",
+      "excelTotal": 9,
+      "excelRank": 44,
+      "computedTotal": 9,
+      "attendance": [
+        {
+          "col": 21,
+          "points": 3
+        },
+        {
+          "col": 32,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "성규동",
+      "excelTotal": 0,
+      "excelRank": 50,
+      "computedTotal": 0,
+      "attendance": []
+    },
+    {
+      "name": "송부자",
+      "excelTotal": 41,
+      "excelRank": 22,
+      "computedTotal": 41,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 21,
+          "points": 3
+        },
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "신광현",
+      "excelTotal": 39,
+      "excelRank": 25,
+      "computedTotal": 39,
+      "attendance": [
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 30
+        },
+        {
+          "col": 32,
+          "points": 3
+        },
+        {
+          "col": 34,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "안정은",
+      "excelTotal": 0,
+      "excelRank": 50,
+      "computedTotal": 0,
+      "attendance": []
+    },
+    {
+      "name": "원강연",
+      "excelTotal": 26,
+      "excelRank": 33,
+      "computedTotal": 26,
+      "attendance": [
+        {
+          "col": 22,
+          "points": 20
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "유수영",
+      "excelTotal": 29,
+      "excelRank": 29,
+      "computedTotal": 29,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 10,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "이성현",
+      "excelTotal": 116,
+      "excelRank": 3,
+      "computedTotal": 116,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 5,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 5
+        },
+        {
+          "col": 10,
+          "points": 5
+        },
+        {
+          "col": 11,
+          "points": 5
+        },
+        {
+          "col": 12,
+          "points": 5
+        },
+        {
+          "col": 13,
+          "points": 3
+        },
+        {
+          "col": 14,
+          "points": 5
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 21,
+          "points": 3
+        },
+        {
+          "col": 23,
+          "points": 5
+        },
+        {
+          "col": 25,
+          "points": 5
+        },
+        {
+          "col": 27,
+          "points": 30
+        },
+        {
+          "col": 29,
+          "points": 5
+        },
+        {
+          "col": 30,
+          "points": 3
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 36,
+          "points": 5
+        },
+        {
+          "col": 38,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 41,
+          "points": 5
+        },
+        {
+          "col": 44,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "이아련",
+      "excelTotal": 6,
+      "excelRank": 46,
+      "computedTotal": 6,
+      "attendance": [
+        {
+          "col": 44,
+          "points": 3
+        },
+        {
+          "col": 45,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "이용문",
+      "excelTotal": 26,
+      "excelRank": 33,
+      "computedTotal": 26,
+      "attendance": [
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 10,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        }
+      ]
+    },
+    {
+      "name": "이은미",
+      "excelTotal": 0,
+      "excelRank": 50,
+      "computedTotal": 0,
+      "attendance": []
+    },
+    {
+      "name": "이종욱",
+      "excelTotal": 53,
+      "excelRank": 15,
+      "computedTotal": 53,
+      "attendance": [
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 7,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 21,
+          "points": 3
+        },
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 43,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "이주비",
+      "excelTotal": 21,
+      "excelRank": 40,
+      "computedTotal": 21,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 5,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "이진협",
+      "excelTotal": 24,
+      "excelRank": 36,
+      "computedTotal": 24,
+      "attendance": [
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 10,
+          "points": 3
+        },
+        {
+          "col": 21,
+          "points": 3
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 36,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 41,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "전찬규",
+      "excelTotal": 41,
+      "excelRank": 22,
+      "computedTotal": 41,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 5,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 7,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 21,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        }
+      ]
+    },
+    {
+      "name": "정상민",
+      "excelTotal": 0,
+      "excelRank": 50,
+      "computedTotal": 0,
+      "attendance": []
+    },
+    {
+      "name": "장원",
+      "excelTotal": 41,
+      "excelRank": 22,
+      "computedTotal": 41,
+      "attendance": [
+        {
+          "col": 4,
+          "points": 3
+        },
+        {
+          "col": 5,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 17,
+          "points": 3
+        },
+        {
+          "col": 18,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 43,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "정현장",
+      "excelTotal": 83,
+      "excelRank": 7,
+      "computedTotal": 83,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 7,
+          "points": 3
+        },
+        {
+          "col": 10,
+          "points": 3
+        },
+        {
+          "col": 13,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 18,
+          "points": 3
+        },
+        {
+          "col": 19,
+          "points": 30
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 32,
+          "points": 3
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 38,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "조영우",
+      "excelTotal": 110,
+      "excelRank": 4,
+      "computedTotal": 110,
+      "attendance": [
+        {
+          "col": 5,
+          "points": 3
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 7,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 9,
+          "points": 3
+        },
+        {
+          "col": 10,
+          "points": 3
+        },
+        {
+          "col": 11,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 13,
+          "points": 3
+        },
+        {
+          "col": 14,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 17,
+          "points": 3
+        },
+        {
+          "col": 18,
+          "points": 3
+        },
+        {
+          "col": 20,
+          "points": 3
+        },
+        {
+          "col": 21,
+          "points": 5
+        },
+        {
+          "col": 23,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 5
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 28,
+          "points": 3
+        },
+        {
+          "col": 29,
+          "points": 3
+        },
+        {
+          "col": 30,
+          "points": 3
+        },
+        {
+          "col": 32,
+          "points": 5
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 37,
+          "points": 3
+        },
+        {
+          "col": 38,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 41,
+          "points": 3
+        },
+        {
+          "col": 43,
+          "points": 3
+        },
+        {
+          "col": 45,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "진중현",
+      "excelTotal": 3,
+      "excelRank": 49,
+      "computedTotal": 3,
+      "attendance": [
+        {
+          "col": 5,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "최민혁",
+      "excelTotal": 51,
+      "excelRank": 16,
+      "computedTotal": 51,
+      "attendance": [
+        {
+          "col": 3,
+          "points": 3
+        },
+        {
+          "col": 4,
+          "points": 5
+        },
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 13,
+          "points": 5
+        },
+        {
+          "col": 21,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 30,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "최석태",
+      "excelTotal": 29,
+      "excelRank": 29,
+      "computedTotal": 29,
+      "attendance": [
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 14,
+          "points": 3
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 32,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "최이나",
+      "excelTotal": 24,
+      "excelRank": 36,
+      "computedTotal": 24,
+      "attendance": [
+        {
+          "col": 7,
+          "points": 3
+        },
+        {
+          "col": 8,
+          "points": 3
+        },
+        {
+          "col": 13,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 25,
+          "points": 3
+        },
+        {
+          "col": 34,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 44,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "하성우",
+      "excelTotal": 83,
+      "excelRank": 7,
+      "computedTotal": 83,
+      "attendance": [
+        {
+          "col": 6,
+          "points": 3
+        },
+        {
+          "col": 12,
+          "points": 3
+        },
+        {
+          "col": 13,
+          "points": 3
+        },
+        {
+          "col": 16,
+          "points": 3
+        },
+        {
+          "col": 18,
+          "points": 3
+        },
+        {
+          "col": 19,
+          "points": 30
+        },
+        {
+          "col": 27,
+          "points": 20
+        },
+        {
+          "col": 30,
+          "points": 3
+        },
+        {
+          "col": 32,
+          "points": 3
+        },
+        {
+          "col": 38,
+          "points": 3
+        },
+        {
+          "col": 40,
+          "points": 3
+        },
+        {
+          "col": 44,
+          "points": 3
+        },
+        {
+          "col": 45,
+          "points": 3
+        }
+      ]
+    },
+    {
+      "name": "허동욱",
+      "excelTotal": 0,
+      "excelRank": 50,
+      "computedTotal": 0,
+      "attendance": []
+    },
+    {
+      "name": "현동휘",
+      "excelTotal": 6,
+      "excelRank": 46,
+      "computedTotal": 6,
+      "attendance": [
+        {
+          "col": 44,
+          "points": 3
+        },
+        {
+          "col": 45,
+          "points": 3
+        }
+      ]
+    }
+  ]
+}

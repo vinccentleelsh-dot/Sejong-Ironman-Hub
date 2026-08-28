@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* 세종철인 훈련허브 — 브랜드 토큰 (요구사항 정의서 Artifact와 동일 팔레트: 연중 고정 톤) */
+:root {
+  --paper: #f1f4f2;
+  --paper-raised: #ffffff;
+  --ink: #142220;
+  --ink-soft: #4b5b57;
+  --ink-faint: #7c8a86;
+  --line: #d7dcd9;
+  --line-strong: #b9c2be;
+  --accent: #0e6f6b;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3efed;
+  --gold: #a8690f;
+  --gold-soft: #f5e9d8;
+  --good: #2f7d5c;
+  --good-soft: #e4f2ea;
+  --pending: #b3651a;
+  --pending-soft: #faeade;
+
+  /* 대회 종목 색상 (분류별 구분용 — 상태색과는 별개) */
+  --cat-trail: #5a7a2e;
+  --cat-trail-soft: #eaf0dc;
+  --cat-granfondo: #8a4a6b;
+  --cat-granfondo-soft: #f3e6ee;
+  --cat-swim: #3b6fb5;
+  --cat-swim-soft: #e4ecf7;
+
+  /* 대회 종목 파이차트 전용 팔레트 — dataviz 스킬 검증 통과 순서(파랑/주황/아쿠아/노랑/마젠타)를
+     그대로 쓴다 (임의 배색은 CVD 대비 검증 실패). 위의 --cat-* 배지 색과는 별개. */
+  --chart-swim: #2a78d6;
+  --chart-trail: #eb6834;
+  --chart-tri: #1baf7a;
+  --chart-marathon: #eda100;
+  --chart-granfondo: #e87ba4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0f1614;
+    --paper-raised: #161f1d;
+    --ink: #eaf1ef;
+    --ink-soft: #aebab6;
+    --ink-faint: #7f8c88;
+    --line: #28332f;
+    --line-strong: #374440;
+    --accent: #57c9c1;
+    --accent-ink: #0a1d1b;
+    --accent-soft: #132523;
+    --gold: #e2ac5c;
+    --gold-soft: #2a2113;
+    --good: #5fc48f;
+    --good-soft: #12251c;
+    --pending: #e3a066;
+    --pending-soft: #2a1e12;
+
+    --cat-trail: #a3c96b;
+    --cat-trail-soft: #1e2a12;
+    --cat-granfondo: #d98fc0;
+    --cat-granfondo-soft: #2a1a24;
+    --cat-swim: #7fa8e0;
+    --cat-swim-soft: #16233a;
+
+    --chart-swim: #3987e5;
+    --chart-trail: #d95926;
+    --chart-tri: #199e70;
+    --chart-marathon: #c98500;
+    --chart-granfondo: #d55181;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-pending: var(--pending);
+  --color-pending-soft: var(--pending-soft);
+  --color-cat-trail: var(--cat-trail);
+  --color-cat-trail-soft: var(--cat-trail-soft);
+  --color-cat-granfondo: var(--cat-granfondo);
+  --color-cat-granfondo-soft: var(--cat-granfondo-soft);
+  --color-cat-swim: var(--cat-swim);
+  --color-cat-swim-soft: var(--cat-swim-soft);
+  --color-chart-swim: var(--chart-swim);
+  --color-chart-trail: var(--chart-trail);
+  --color-chart-tri: var(--chart-tri);
+  --color-chart-marathon: var(--chart-marathon);
+  --color-chart-granfondo: var(--chart-granfondo);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body), "Malgun Gothic", -apple-system, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), "Nanum Myeongjo", serif;
+}
+.font-mono-brand {
+  font-family: var(--font-mono), ui-monospace, "Consolas", monospace;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}

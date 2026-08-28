@@ -1,0 +1,142 @@
+// 세종철인 훈련허브 — 데이터 모델
+// 요구사항 정의서(Artifact) 09번 "엑셀 → 데이터 모델 매핑" 기준
+// 원본 엑셀: "1_2026 세철포인트 및 훈련 계획.xlsx" (Sheet1: 세철포인트, Sheet2: 연간훈련계획)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// 훈련/대회/행사 등 하루 단위 일정 (엑셀 Sheet2 "2026 연간훈련계획" 대응)
+model TrainingSession {
+  id       String   @id @default(cuid())
+  date     DateTime // 일자 (엑셀 날짜 시리얼 → 실제 날짜로 변환)
+  category SessionCategory
+
+  // 종목 — 그날 진행된 종목 조합 (예: "SWIM,RUN" 브릭 훈련). 이번 1차 이관은 세철포인트
+  // 시트(참석/포인트)만 기준으로 하므로 아직 비어있음 — 훈련계획 입력 페이지에서 채워짐.
+  disciplines String?
+
+  title       String? // 예: "안전기원제", "나주듀애슬론" 등 공식행사/대회명
+  description String? // 코스 상세 설명 원문 (엑셀 셀 텍스트 그대로)
+
+  // 리더/보급 담당자 필드는 뺐다 — 지금은 고정 담당자 없이 시간 되는 사람이 그때그때 맡음 (2026.08 결정)
+
+  // 이번에 신규로 추가하는 종목별 거리(km) — 참석자 개인 누적거리 자동계산의 기준값
+  swimKm Float @default(0)
+  bikeKm Float @default(0)
+  runKm  Float @default(0)
+
+  seasonPhase String? // 시즌 구간 라벨 (예: "동계훈련 기간", "시즌 1/3 기간" 등)
+
+  attendances AttendanceRecord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+}
+
+enum SessionCategory {
+  REGULAR // 정기훈련
+  OFFICIAL_EVENT // 공식행사 (안전기원제, 세종철인의 밤 등)
+  COMPETITION // 대회 (하프/올림픽/킹/공식대회 등)
+  FREE_TRAINING // 자율훈련
+}
+
+// 회원 (엑셀 Sheet1 "세철포인트"의 행 = 회원 1명)
+model Member {
+  id   String @id @default(cuid())
+  name String
+
+  isActive Boolean   @default(true) // 탈퇴 시 false — 과거 기록은 유지, 명단에서만 비활성 처리
+  joinedAt DateTime?
+  leftAt   DateTime?
+
+  attendances AttendanceRecord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 회원 × 세션 참석 기록 = 그날 획득한 세철포인트
+// "참석 인정 기준": 이 레코드가 존재하고 points > 0 이면 그날 "참석"으로 집계 (결정 로그 참고)
+model AttendanceRecord {
+  id String @id @default(cuid())
+
+  member   Member          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId String
+  session  TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId String
+
+  points Int // 세철포인트 (정기훈련 3~5 / 공식대회 100 / 풀 50 / 하프 30 / 올림픽 20 등)
+
+  createdAt DateTime @default(now())
+
+  @@unique([memberId, sessionId])
+  @@index([sessionId])
+  @@index([memberId])
+}
+
+// 세철포인트 점수 규정 (엑셀 Sheet1 하단 "대회점수" 표) — 운영자가 추후 조정 가능하도록 테이블로 관리
+model PointRule {
+  id     String @id @default(cuid())
+  label  String @unique // "정기훈련", "리더/보급", "공식대회", "풀코스", "하프코스", "올림픽코스", "자율훈련"
+  points Int
+  note   String?
+}
+
+// 대회 참가 계획 공유 (요구사항 5번)
+// 개인별 자율 등록(+비밀번호) 방식 대신, 운영진이 관리하는 공유 대회 캘린더 한 장으로
+// 재설계 — 원본: "2026_철인3종대회_일정.xlsx". 참가자는 이름을 콤마로 나열한 원문 그대로
+// 저장하고(회원 매칭은 렌더링 시점에 이름으로 best-effort 매칭), 코스가 아직 확인 안 된
+// 종목별 거리는 비워두고, "전체 거리"는 엑셀의 표기를 그대로 문자열로 보존한다(합계 수식이
+// 안 통하는 특수 케이스 — 계단 오르기 등 — 가 실제로 있어서 억지로 재계산하지 않는다).
+model CompetitionRace {
+  id String @id @default(cuid())
+
+  dateLabel String // 원문 그대로 ("1/11(일)", "1/22~25" 같은 기간 표기 포함)
+  startDate DateTime // 정렬·필터용으로 파싱한 시작일
+
+  category String // 수영 / 마라톤 / 철인3종 / 트레일러닝 / 그란폰도 (자유 텍스트 — 새 종목 추가 대비)
+  raceName String
+  courseDetail String? // 세부종목 (코스 설명)
+
+  swimKm Float?
+  bikeKm Float?
+  runKm  Float?
+  totalKmDisplay String? // "전체 거리(km)" 원문 표기 (숫자 또는 설명 텍스트)
+  elevationGainM Float? // 획득고도(m) — 표에서는 맨 마지막 칸
+
+  participantsRaw String? // 참가자 이름 콤마 목록 원문, 또는 "(참가자 입력 예정)"
+
+  sortOrder Int // 같은 날짜에 여러 행이 있을 때 원본 순서 보존 (예: 코스별로 나뉜 대회)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([startDate])
+}
+
+// 대회기록 감사 로그 — "세종철인 인증" 하나로 전 회원이 열람·수정 가능해지면서, 실수(또는 악의)로
+// 지워지는 걸 대비해 모든 변경을 기록한다. 삭제 건은 스냅샷으로 복구까지 가능하게 한다.
+model CompetitionAuditLog {
+  id String @id @default(cuid())
+
+  action       String // "CREATE" | "UPDATE" | "DELETE" | "JOIN" | "LEAVE"
+  raceSnapshot String // 변경 시점의 CompetitionRace 전체 필드를 JSON으로 저장 (삭제 복구용)
+  raceId       String? // 삭제된 뒤에도 로그는 남아야 하므로 FK로 물지 않는다
+
+  ipAddress String? // 최선 노력 — 로컬/사설망에서는 정확하지 않을 수 있음
+  userAgent String?
+
+  restoredAt DateTime? // DELETE 건을 복구했다면 그 시각 (중복 복구 방지 겸 표시용)
+
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
