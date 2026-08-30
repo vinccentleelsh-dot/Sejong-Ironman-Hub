@@ -49,3 +49,6 @@ next-env.d.ts
 
 # 대회기록 자동 스냅샷 (감사로그 안전망) — 로컬 전용, 커밋 불필요
 prisma/backups/
+
+# 일회성 DB 이관용 SQL 덤프 — 회원 실명 등 개인정보 포함, 절대 커밋 금지
+dev-dump.sql

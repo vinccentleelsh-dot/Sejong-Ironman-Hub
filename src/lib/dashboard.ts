@@ -27,7 +27,8 @@ export type DashboardStats = {
   monthlyAverages: Array<{ month: string; average: number }>; // 최근 5개월 월별 평균 참석인원
   pointsLeaderboard: Array<{ memberId: string; name: string; points: number }>; // 올해 세철포인트 Top5 (전체 카테고리)
   monthlyAttendanceLeaderboard: Array<{ memberId: string; name: string; count: number }>; // 이달의 참석 Top5 (정기훈련/공식행사만)
-  distances: { swimKm: number; bikeKm: number; runKm: number; hasAnyData: boolean }; // 올해 누적 종목별 거리 (정기훈련/공식행사만)
+  distances: { swimKm: number; bikeKm: number; runKm: number; hasAnyData: boolean }; // 올해 누적 종목별 거리 (정기훈련/공식행사만, 세션거리 × 그날 출석인원)
+  courseDistances: { swimKm: number; bikeKm: number; runKm: number; hasAnyData: boolean }; // 올해 세션 자체 거리 합산 (정기훈련/공식행사만, 출석인원 곱하지 않음 — 코스 기준 총거리)
 };
 
 function fmtDate(d: Date) {
@@ -138,6 +139,17 @@ export async function getDashboardStats(now: Date = new Date()): Promise<Dashboa
     runKm += s.runKm * n;
   }
 
+  // 세션 자체 거리 합산 — 위와 달리 출석 인원수를 곱하지 않는다. 세션마다 코스 거리를 한 번씩만
+  // 더한 값 (예: 30km 세션에 10명이 왔든 1명이 왔든 그냥 30km로 카운트) — "코스 기준 총거리".
+  let courseSwimKm = 0;
+  let courseBikeKm = 0;
+  let courseRunKm = 0;
+  for (const s of sessions) {
+    courseSwimKm += s.swimKm;
+    courseBikeKm += s.bikeKm;
+    courseRunKm += s.runKm;
+  }
+
   return {
     asOf: fmtAsOf(now),
     yearTotalAttendance,
@@ -150,5 +162,6 @@ export async function getDashboardStats(now: Date = new Date()): Promise<Dashboa
     pointsLeaderboard,
     monthlyAttendanceLeaderboard,
     distances: { swimKm, bikeKm, runKm, hasAnyData },
+    courseDistances: { swimKm: courseSwimKm, bikeKm: courseBikeKm, runKm: courseRunKm, hasAnyData },
   };
 }

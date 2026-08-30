@@ -159,6 +159,7 @@ export default async function DashboardPage() {
   const raceStats = await getCompetitionDashboardStats(new Date().getFullYear());
 
   const trainingTotalKm = stats.distances.swimKm + stats.distances.bikeKm + stats.distances.runKm;
+  const courseDistances = stats.courseDistances;
   const grandTotal = {
     swimKm: stats.distances.swimKm + raceStats.distances.swimKm,
     bikeKm: stats.distances.bikeKm + raceStats.distances.bikeKm,
@@ -248,11 +249,27 @@ export default async function DashboardPage() {
         {/* Row 4 — 올해 누적 종목별 거리 */}
         <SectionCard title="올해 누적 거리 (클럽 전체 · 정기훈련·공식행사)">
           {stats.distances.hasAnyData ? (
-            <div className="flex gap-6 font-mono-brand [font-variant-numeric:tabular-nums]">
-              <span>Swim {fmtNum(stats.distances.swimKm, 1)}km</span>
-              <span>Bike {fmtNum(stats.distances.bikeKm, 1)}km</span>
-              <span>Run {fmtNum(stats.distances.runKm, 1)}km</span>
-            </div>
+            <>
+              <div className="flex gap-6 font-mono-brand [font-variant-numeric:tabular-nums]">
+                <span>Swim {fmtNum(stats.distances.swimKm, 1)}km</span>
+                <span>Bike {fmtNum(stats.distances.bikeKm, 1)}km</span>
+                <span>Run {fmtNum(stats.distances.runKm, 1)}km</span>
+              </div>
+              <p className="text-xs text-ink-faint mt-1.5">
+                * 세션 거리 × 그날 출석 인원수를 모두 더한 값 (참석자 전원이 그날 세션 거리를 그대로
+                소화했다고 가정한 연인원 기준 합계)
+              </p>
+
+              <div className="flex gap-6 font-mono-brand [font-variant-numeric:tabular-nums] mt-4 pt-4 border-t border-line">
+                <span>Swim {fmtNum(courseDistances.swimKm, 1)}km</span>
+                <span>Bike {fmtNum(courseDistances.bikeKm, 1)}km</span>
+                <span>Run {fmtNum(courseDistances.runKm, 1)}km</span>
+              </div>
+              <p className="text-xs text-ink-faint mt-1.5">
+                * 위와 달리 출석 인원수는 곱하지 않고, 세션 코스 거리 자체만 한 번씩 더한 값
+                (인원수 무관 · 순수 코스 거리 총합)
+              </p>
+            </>
           ) : (
             <p className="text-sm text-pending bg-pending-soft border border-pending/30 rounded-sm px-3 py-2">
               아직 세션별 거리 데이터가 입력되지 않았습니다 — 훈련계획 입력 페이지에서 세션마다 종목별 거리를
