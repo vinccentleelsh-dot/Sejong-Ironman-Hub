@@ -124,3 +124,48 @@ body {
   background: var(--accent-soft);
   color: var(--ink);
 }
+
+/* ============================================================================
+   신규 디자인 시스템 (2026.09 정의) — 토큰만 정의해두고 아직 어떤 페이지/컴포넌트에도
+   연결하지 않았다 (@theme inline에도 안 올림, 기존 --paper/--ink 등 브랜드 토큰도 그대로
+   유지). 기존 흰 배경 톤은 유지하되 카드 구분감과 종목별 포인트 컬러를 더하는 용도.
+   실제로 적용할 때는 컴포넌트에서 아래 --ds-* 값을 직접 참조하면 된다.
+
+   참고: --ds-color-swim/bike/run 세 색은 dataviz 스킬 검증기(validate_palette.js)로
+   확인함 — 색약 구분(CVD)은 통과, 다만 흰 배경 위 얇은 텍스트로 쓰면 대비가 낮으니
+   (worst 2.26:1) 아이콘/뱃지처럼 면적이 있는 곳에 쓰거나 라벨을 같이 노출할 것.
+
+   다크모드 값은 아직 지정받지 않아 정의하지 않았다 — 다크모드에 적용할 때 별도로 받을 것.
+   ============================================================================ */
+:root {
+  /* 배경 */
+  --ds-bg-page: #fafaf8;
+  --ds-bg-card: #ffffff;
+
+  /* 카드 */
+  --ds-card-border-color: #e9e8e1;
+  --ds-card-border-width: 0.5px;
+  --ds-card-radius: 10px;
+  --ds-card-padding: 12px;
+  --ds-card-gap: 8px;
+
+  /* 포인트 컬러 — 종목별. bike와 point(세철포인트)는 같은 값(#FF7A45)을 쓰되,
+     의미가 다른 곳에서 각자 이름으로 참조할 수 있도록 별칭을 둘 다 둔다. */
+  --ds-color-swim: #4c8df5;
+  --ds-color-bike: #ff7a45;
+  --ds-color-point: #ff7a45;
+  --ds-color-run: #3fbf8f;
+
+  /* 텍스트 */
+  --ds-text-primary: #1f2430;
+  --ds-text-secondary: #8a8f9c;
+
+  /* 타이포그래피 */
+  --ds-heading-size: 20px;
+  --ds-heading-weight: 500;
+  --ds-body-size: 14px;
+  --ds-body-weight: 400;
+  --ds-caption-size: 11px;
+  --ds-caption-weight: 400;
+  --ds-number-variant: tabular-nums; /* 숫자에는 font-variant-numeric: var(--ds-number-variant) */
+}
