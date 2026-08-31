@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getDashboardStats } from "@/lib/dashboard";
-import { getCompetitionDashboardStats } from "@/lib/dashboard-competitions";
+import { getCompetitionDashboardStats, getRaceParticipationLeaderboard } from "@/lib/dashboard-competitions";
 import { getCompetitionRaces } from "@/lib/competitions";
 import { RACE_CATEGORY_COLOR } from "@/lib/competitions-shared";
 import { nowKst } from "@/lib/now";
@@ -161,6 +161,7 @@ export default async function DashboardPage() {
   const now = nowKst();
   const stats = await getDashboardStats(now);
   const raceStats = await getCompetitionDashboardStats(now.getUTCFullYear());
+  const raceParticipationLeaderboard = await getRaceParticipationLeaderboard(now.getUTCFullYear());
   const thisMonthRaces = (await getCompetitionRaces(now.getUTCFullYear())).filter((r) => r.month === now.getUTCMonth() + 1);
 
   const trainingTotalKm = stats.distances.swimKm + stats.distances.bikeKm + stats.distances.runKm;
@@ -390,6 +391,18 @@ export default async function DashboardPage() {
               }))}
             />
           </div>
+        </SectionCard>
+
+        {/* Row 5.5 — 대회 참가횟수 Top5 */}
+        <SectionCard
+          title={`${now.getUTCFullYear()}년 대회 참가횟수 Top 5`}
+          moreHref="/members/race-participation"
+          moreLabel="전체 참가횟수 보기"
+        >
+          <Leaderboard
+            items={raceParticipationLeaderboard.slice(0, 5).map((p) => ({ memberId: p.memberId, name: p.name, value: p.count }))}
+            valueLabel="건"
+          />
         </SectionCard>
 
         <footer className="text-center text-xs text-ink-faint font-mono-brand pt-4 pb-8">

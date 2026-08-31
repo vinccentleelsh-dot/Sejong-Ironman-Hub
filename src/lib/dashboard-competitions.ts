@@ -35,6 +35,29 @@ export type CompetitionDashboardStats = {
   categoryParticipantCounts: Array<{ category: string; count: number }>;
 };
 
+export type RaceParticipationRow = { memberId: string; name: string; count: number; rank: number };
+
+// "대회 참가횟수" 랭킹 — 올해(year) 기준으로 몇 개 대회에 참가했는지 인원별 집계.
+// 이름이 회원 명단과 매칭 안 된 참가자(게스트·오탈자)는 프로필로 링크할 수 없어서 제외한다.
+export async function getRaceParticipationLeaderboard(year: number): Promise<RaceParticipationRow[]> {
+  const races = (await getCompetitionRaces(year)).filter((r) => !r.isPending);
+
+  const countByMember = new Map<string, { name: string; count: number }>();
+  for (const race of races) {
+    for (const p of race.participants) {
+      if (!p.memberId) continue;
+      const entry = countByMember.get(p.memberId) ?? { name: p.name, count: 0 };
+      entry.count += 1;
+      countByMember.set(p.memberId, entry);
+    }
+  }
+
+  return Array.from(countByMember.entries())
+    .map(([memberId, v]) => ({ memberId, name: v.name, count: v.count }))
+    .sort((a, b) => b.count - a.count)
+    .map((r, i) => ({ ...r, rank: i + 1 }));
+}
+
 export async function getCompetitionDashboardStats(year: number): Promise<CompetitionDashboardStats> {
   const races = (await getCompetitionRaces(year)).filter((r) => !r.isPending);
 
