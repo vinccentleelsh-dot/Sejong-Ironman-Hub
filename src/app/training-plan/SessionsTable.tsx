@@ -348,19 +348,19 @@ export default function SessionsTable({
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="border-b border-line-strong text-left">
-              <th className="px-3 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint whitespace-nowrap">날짜</th>
-              <th className="px-3 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">분류</th>
-              <th className="px-3 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">종목</th>
-              <th className="px-3 py-2 font-mono-brand text-[9px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint whitespace-nowrap">날짜</th>
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">분류</th>
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">종목</th>
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">참석자</th>
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">설명</th>
+              <th className="px-2 py-2 font-mono-brand text-[9px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
                 종목별(S/B/R)
               </th>
-              <th className="px-3 py-2 font-mono-brand text-[9px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
+              <th className="px-2 py-2 font-mono-brand text-[9px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
                 합계(km)
               </th>
-              <th className="px-3 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">참석자</th>
-              <th className="px-3 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">설명</th>
               {isAdmin && (
-                <th className="px-3 py-2 sticky right-0 bg-paper-raised shadow-[-4px_0_6px_-4px_rgba(20,34,32,.15)]"></th>
+                <th className="px-2 py-2 sticky right-0 bg-paper-raised shadow-[-4px_0_6px_-4px_rgba(20,34,32,.15)]"></th>
               )}
             </tr>
           </thead>
@@ -371,21 +371,13 @@ export default function SessionsTable({
                 <EditForm key={row.id} row={row} members={members} onDone={() => setEditingId(null)} />
               ) : (
                 <tr key={row.id} className="border-b border-line hover:bg-paper align-top">
-                  <td className="px-3 py-2 font-mono-brand text-ink-soft whitespace-nowrap">{fmtDate(row.date)}</td>
-                  <td className="px-3 py-2">
+                  <td className="px-2 py-2 font-mono-brand text-xs text-ink-soft whitespace-nowrap">{fmtDate(row.date)}</td>
+                  <td className="px-2 py-2">
                     <CategoryBadge category={row.category} />
                     {row.title && <div className="text-xs text-ink-soft mt-0.5">{row.title}</div>}
                   </td>
-                  <td className="px-3 py-2 text-ink-soft whitespace-nowrap">{formatDisciplines(row.disciplines)}</td>
-                  <td className="px-3 py-2 text-[11px] text-ink-faint/80 font-mono-brand [font-variant-numeric:tabular-nums] text-right whitespace-nowrap">
-                    {row.swimKm || row.bikeKm || row.runKm
-                      ? `${row.swimKm}/${row.bikeKm}/${row.runKm}`
-                      : "—"}
-                  </td>
-                  <td className="px-3 py-2 text-[11px] text-ink-faint/80 font-mono-brand [font-variant-numeric:tabular-nums] text-right whitespace-nowrap">
-                    {row.swimKm + row.bikeKm + row.runKm > 0 ? (row.swimKm + row.bikeKm + row.runKm).toFixed(1) : "—"}
-                  </td>
-                  <td className="px-3 py-2 min-w-[160px]">
+                  <td className="px-2 py-2 text-ink-soft whitespace-nowrap">{formatDisciplines(row.disciplines)}</td>
+                  <td className="px-2 py-2 min-w-[160px]">
                     {row.attendees.length > 0 ? (
                       <>
                         <span className="text-ink font-medium font-mono-brand [font-variant-numeric:tabular-nums]">
@@ -397,11 +389,19 @@ export default function SessionsTable({
                       <span className="text-ink-faint">0명</span>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-ink-faint text-xs max-w-[220px] truncate" title={row.description ?? ""}>
+                  <td className="px-2 py-2 text-ink-faint text-xs max-w-[220px] truncate" title={row.description ?? ""}>
                     {row.description ? oneLine(row.description) : ""}
                   </td>
+                  <td className="px-2 py-2 text-[11px] text-ink-faint/80 font-mono-brand [font-variant-numeric:tabular-nums] text-right whitespace-nowrap">
+                    {row.swimKm || row.bikeKm || row.runKm
+                      ? `${row.swimKm}/${row.bikeKm}/${row.runKm}`
+                      : "—"}
+                  </td>
+                  <td className="px-2 py-2 text-[11px] text-ink-faint/80 font-mono-brand [font-variant-numeric:tabular-nums] text-right whitespace-nowrap">
+                    {row.swimKm + row.bikeKm + row.runKm > 0 ? (row.swimKm + row.bikeKm + row.runKm).toFixed(1) : "—"}
+                  </td>
                   {isAdmin && (
-                    <td className="px-3 py-2 whitespace-nowrap sticky right-0 bg-paper-raised shadow-[-4px_0_6px_-4px_rgba(20,34,32,.15)]">
+                    <td className="px-2 py-2 whitespace-nowrap sticky right-0 bg-paper-raised shadow-[-4px_0_6px_-4px_rgba(20,34,32,.15)]">
                       <button
                         onClick={() => setEditingId(row.id)}
                         className="text-xs text-accent hover:underline mr-2"

@@ -48,6 +48,50 @@ export async function getMemberRanking(year: number, today: Date = new Date()): 
   return rows;
 }
 
+export type MonthlyMemberRankingRow = {
+  memberId: string;
+  name: string;
+  isActive: boolean;
+  attendanceCount: number; // 정기훈련/공식행사만, 이번 달
+  points: number; // 전체 카테고리, 이번 달
+  rank: number;
+};
+
+// "이달의 참석 Top5" 더보기용 — 연간 랭킹과 별개로 이번 달만 집계한다. 참석횟수를 1순위로
+// 정렬하되(대시보드 "이달의 참석 Top5"와 같은 관점), 동점이면 포인트로 가른다.
+// 이번 달에 활동이 전혀 없는 회원은 목록을 불필요하게 늘리므로 제외한다.
+export async function getMonthlyMemberRanking(
+  year: number,
+  month: number, // 0-based (Date.getMonth())
+  today: Date = new Date()
+): Promise<MonthlyMemberRankingRow[]> {
+  const monthStart = new Date(Date.UTC(year, month, 1));
+  const nextMonthStart = new Date(Date.UTC(year, month + 1, 1));
+
+  const members = await prisma.member.findMany({
+    include: {
+      attendances: {
+        where: { session: { date: { gte: monthStart, lt: nextMonthStart, lte: today } } },
+        include: { session: { select: { category: true } } },
+      },
+    },
+  });
+
+  const rows = members
+    .map((m) => ({
+      memberId: m.id,
+      name: m.name,
+      isActive: m.isActive,
+      points: m.attendances.reduce((sum, a) => sum + a.points, 0), // 전체 카테고리
+      attendanceCount: m.attendances.filter((a) => isStatCategory(a.session.category)).length, // 정기훈련/공식행사만
+    }))
+    .filter((r) => r.attendanceCount > 0 || r.points > 0)
+    .sort((a, b) => b.attendanceCount - a.attendanceCount || b.points - a.points)
+    .map((r, i) => ({ ...r, rank: i + 1 }));
+
+  return rows;
+}
+
 export type MemberProfile = {
   id: string;
   name: string;

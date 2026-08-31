@@ -181,13 +181,13 @@ export default async function DashboardPage() {
           </div>
           <div className="flex items-center gap-4">
             <Link href="/archive" className="text-sm font-medium text-accent hover:underline">
-              지난 기록 →
+              지난 기록
             </Link>
             <Link href="/competitions" className="text-sm font-medium text-accent hover:underline">
-              대회 계획 →
+              대회 계획
             </Link>
             <Link href="/training-plan" className="text-sm font-medium text-accent hover:underline">
-              훈련계획 →
+              훈련 계획
             </Link>
             <p className="font-mono-brand text-xs text-ink-faint">{stats.asOf}일 현재 기준</p>
           </div>
@@ -238,7 +238,7 @@ export default async function DashboardPage() {
               valueLabel="점"
             />
           </SectionCard>
-          <SectionCard title="이달의 참석 Top 5" moreHref="/members">
+          <SectionCard title="이달의 참석 Top 5" moreHref="/members/monthly" moreLabel="이달의 순위 보기">
             <Leaderboard
               items={stats.monthlyAttendanceLeaderboard.map((p) => ({ memberId: p.memberId, name: p.name, value: p.count }))}
               valueLabel="회"
@@ -287,13 +287,13 @@ export default async function DashboardPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <div className="bg-paper border border-line rounded-sm p-3">
-              <p className="text-xs text-ink-faint mb-1.5">올해 훈련 거리 (정기훈련·공식행사만)</p>
-              {stats.distances.hasAnyData ? (
+              <p className="text-xs text-ink-faint mb-1.5">세종철인이 대회에 참가하여 달린 거리 (대회 참가자 전원 합산)</p>
+              {raceStats.distances.hasAnyData ? (
                 <div className="flex flex-wrap gap-x-4 gap-y-1 font-mono-brand text-sm [font-variant-numeric:tabular-nums]">
-                  <span>전체 {fmtNum(trainingTotalKm, 1)}km</span>
-                  <span className="text-ink-soft">Swim {fmtNum(stats.distances.swimKm, 1)}km</span>
-                  <span className="text-ink-soft">Bike {fmtNum(stats.distances.bikeKm, 1)}km</span>
-                  <span className="text-ink-soft">Run {fmtNum(stats.distances.runKm, 1)}km</span>
+                  <span>전체 {fmtNum(raceStats.distances.totalKm, 1)}km</span>
+                  <span className="text-ink-soft">Swim {fmtNum(raceStats.distances.swimKm, 1)}km</span>
+                  <span className="text-ink-soft">Bike {fmtNum(raceStats.distances.bikeKm, 1)}km</span>
+                  <span className="text-ink-soft">Run {fmtNum(raceStats.distances.runKm, 1)}km</span>
                 </div>
               ) : (
                 <p className="text-xs text-ink-faint">아직 입력된 거리가 없습니다.</p>

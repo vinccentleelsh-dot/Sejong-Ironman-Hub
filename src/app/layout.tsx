@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import { Gowun_Batang, IBM_Plex_Sans_KR, IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Sans_KR, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-
-const gowunBatang = Gowun_Batang({
-  variable: "--font-display",
-  weight: ["400", "700"],
-  subsets: ["latin"],
-});
 
 const plexSansKr = IBM_Plex_Sans_KR({
   variable: "--font-body",
@@ -27,10 +21,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="ko"
-      className={`${gowunBatang.variable} ${plexSansKr.variable} ${plexMono.variable} h-full antialiased`}
-    >
+    <html lang="ko" className={`${plexSansKr.variable} ${plexMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
