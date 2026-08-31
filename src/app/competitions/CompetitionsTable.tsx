@@ -26,7 +26,7 @@ function CategoryTag({ category }: { category: string }) {
   const c = RACE_CATEGORY_COLOR[category] ?? { text: "var(--ink-soft)", bg: "var(--line)" };
   return (
     <span
-      className="inline-block text-[11px] font-medium px-1.5 py-0.5 rounded-sm whitespace-nowrap"
+      className="inline-block text-xs font-medium px-1.5 py-0.5 rounded-sm whitespace-nowrap"
       style={{ color: c.text, backgroundColor: c.bg }}
     >
       {category}
@@ -46,7 +46,7 @@ function Participants({ race, members }: { race: CompetitionRaceRow; members: Me
   return (
     <div className="flex flex-col gap-1 min-w-[140px]">
       {!race.isPending && race.participants.length > 0 && (
-        <div className="text-sm leading-snug">
+        <div className="text-xs leading-snug">
           {race.participants.map((p, i) => (
             <span key={p.name + i} className="inline-flex items-center gap-0.5 mr-1.5">
               {p.memberId ? (
@@ -303,7 +303,7 @@ function RaceForm({
   );
 }
 
-const COL_COUNT = 10; // 월,날짜,분류,대회명,세부종목,참가자,S/B/R,전체,획득고도,관리(수정/삭제)
+const COL_COUNT = 10; // 월,날짜,대회명,세부종목,참가자,분류,S/B/R,전체,획득고도,관리(수정/삭제)
 
 export default function CompetitionsTable({
   races,
@@ -349,22 +349,22 @@ export default function CompetitionsTable({
       </p>
 
       <div className="overflow-x-auto mt-3">
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="border-b border-line-strong text-left">
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">월</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint whitespace-nowrap">날짜</th>
-              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">분류</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">대회명</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">세부종목</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">참가자</th>
-              <th className="px-2 py-2 font-mono-brand text-[9px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">분류</th>
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
                 S/B/R
               </th>
-              <th className="px-2 py-2 font-mono-brand text-[9px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
                 전체(km)
               </th>
-              <th className="px-2 py-2 font-mono-brand text-[9px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
                 고도(m)
               </th>
               <th className="px-2 py-2"></th>
@@ -394,21 +394,21 @@ export default function CompetitionsTable({
                     {showMonth ? MONTH_LABELS[race.month - 1] : ""}
                   </td>
                   <td className="px-2 py-2 font-mono-brand text-ink-soft whitespace-nowrap">{race.dateLabel}</td>
-                  <td className="px-2 py-2">
-                    <CategoryTag category={race.category} />
-                  </td>
                   <td className="px-2 py-2 text-ink font-medium">{race.raceName}</td>
-                  <td className="px-2 py-2 text-ink-faint text-xs max-w-[220px]">{race.courseDetail ?? ""}</td>
+                  <td className="px-2 py-2 text-ink-faint max-w-[220px]">{race.courseDetail ?? ""}</td>
                   <td className="px-2 py-2">
                     <Participants race={race} members={members} />
                   </td>
-                  <td className="px-2 py-2 text-[11px] text-ink-faint/80 text-right whitespace-nowrap">
+                  <td className="px-2 py-2">
+                    <CategoryTag category={race.category} />
+                  </td>
+                  <td className="px-2 py-2 text-ink-faint/80 text-right whitespace-nowrap">
                     <CompactDistance race={race} />
                   </td>
-                  <td className="px-2 py-2 text-[11px] text-ink-faint/80 text-right whitespace-nowrap font-mono-brand">
+                  <td className="px-2 py-2 text-ink-faint/80 text-right whitespace-nowrap font-mono-brand">
                     {formatTotalKm(race.totalKmDisplay) ?? "—"}
                   </td>
-                  <td className="px-2 py-2 text-[11px] text-ink-faint/80 text-right whitespace-nowrap font-mono-brand">
+                  <td className="px-2 py-2 text-ink-faint/80 text-right whitespace-nowrap font-mono-brand">
                     {race.elevationGainM ?? "—"}
                   </td>
                   <td className="px-2 py-2 whitespace-nowrap">

@@ -53,7 +53,8 @@ export default async function TrainingPlanPage() {
                 세종철인 훈련허브
               </Link>
             </p>
-            <h1 className="font-display text-2xl text-ink">훈련계획</h1>
+            {/* TODO: 2025년 데이터가 들어오면 연도 선택/탭을 추가하고 이 제목도 동적으로 바꿀 것 */}
+            <h1 className="font-display text-2xl text-ink">2026년 훈련계획</h1>
             <p className="text-sm text-ink-soft mt-1">
               {admin ? "운영자 모드 — 세션 수정/추가, 회원 관리가 가능합니다." : "읽기 전용 — 운영자만 수정할 수 있습니다."}
             </p>

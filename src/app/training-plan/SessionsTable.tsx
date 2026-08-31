@@ -29,7 +29,8 @@ function oneLine(text: string) {
 function fmtDate(iso: string) {
   const d = new Date(iso + "T00:00:00Z");
   const days = ["일", "월", "화", "수", "목", "금", "토"];
-  return `${iso.slice(2).replace(/-/g, ".")} (${days[d.getUTCDay()]})`;
+  // 연도는 페이지 제목("2026년 훈련계획")에 이미 나오므로 표에서는 생략 — MM.DD (요일)
+  return `${iso.slice(5).replace(/-/g, ".")} (${days[d.getUTCDay()]})`;
 }
 
 function CategoryBadge({ category }: { category: SessionCategory }) {
@@ -350,9 +351,9 @@ export default function SessionsTable({
             <tr className="border-b border-line-strong text-left">
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint whitespace-nowrap">날짜</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">분류</th>
-              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">종목</th>
-              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">참석자</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">설명</th>
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">참석자</th>
+              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">종목</th>
               <th className="px-2 py-2 font-mono-brand text-[9px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
                 종목별(S/B/R)
               </th>
@@ -376,7 +377,9 @@ export default function SessionsTable({
                     <CategoryBadge category={row.category} />
                     {row.title && <div className="text-xs text-ink-soft mt-0.5">{row.title}</div>}
                   </td>
-                  <td className="px-2 py-2 text-ink-soft whitespace-nowrap">{formatDisciplines(row.disciplines)}</td>
+                  <td className="px-2 py-2 text-ink-faint text-xs max-w-[220px] truncate" title={row.description ?? ""}>
+                    {row.description ? oneLine(row.description) : ""}
+                  </td>
                   <td className="px-2 py-2 min-w-[160px]">
                     {row.attendees.length > 0 ? (
                       <>
@@ -389,9 +392,7 @@ export default function SessionsTable({
                       <span className="text-ink-faint">0명</span>
                     )}
                   </td>
-                  <td className="px-2 py-2 text-ink-faint text-xs max-w-[220px] truncate" title={row.description ?? ""}>
-                    {row.description ? oneLine(row.description) : ""}
-                  </td>
+                  <td className="px-2 py-2 text-ink-soft whitespace-nowrap">{formatDisciplines(row.disciplines)}</td>
                   <td className="px-2 py-2 text-[11px] text-ink-faint/80 font-mono-brand [font-variant-numeric:tabular-nums] text-right whitespace-nowrap">
                     {row.swimKm || row.bikeKm || row.runKm
                       ? `${row.swimKm}/${row.bikeKm}/${row.runKm}`
