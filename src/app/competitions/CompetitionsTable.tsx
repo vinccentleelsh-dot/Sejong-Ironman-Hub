@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import {
   createRaceAction,
@@ -140,6 +140,16 @@ function CompactDistance({ race }: { race: CompetitionRaceRow }) {
   );
 }
 
+// 달력에서 고른 날짜(YYYY-MM-DD)를 "9/18(목)" 같은 표시용 문구로 변환 — 날짜 표기 칸을
+// 자동으로 채워준다 (여러 날짜에 걸치는 대회는 채워진 값을 사람이 직접 "~20"처럼 고쳐 쓰면 됨).
+function formatDateLabelFromISO(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(`${iso}T00:00:00`);
+  if (isNaN(d.getTime())) return "";
+  const days = ["일", "월", "화", "수", "목", "금", "토"];
+  return `${d.getMonth() + 1}/${d.getDate()}(${days[d.getDay()]})`;
+}
+
 function RaceForm({
   race,
   colSpan,
@@ -152,6 +162,7 @@ function RaceForm({
   onDone: () => void;
 }) {
   const [error, setError] = useState<string | null>(null);
+  const dateLabelRef = useRef<HTMLInputElement>(null);
   return (
     <tr className="bg-accent-soft/40">
       <td colSpan={colSpan} className="p-3">
@@ -170,23 +181,29 @@ function RaceForm({
           {race && <input type="hidden" name="id" value={race.id} />}
           <div className="flex flex-wrap gap-2">
             <label className="flex flex-col gap-1 text-xs text-ink-faint">
-              날짜 표기
-              <input
-                name="dateLabel"
-                defaultValue={race?.dateLabel ?? ""}
-                placeholder="예: 5/2~3"
-                required
-                className="border border-line rounded-sm px-2 py-1 bg-paper-raised text-sm w-28"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-xs text-ink-faint">
-              정렬용 시작일
+              날짜 선택
               <input
                 type="date"
                 name="startDate"
                 defaultValue={race?.startDate ?? ""}
+                onChange={(e) => {
+                  // 달력에서 고르면 아래 "날짜 표기" 칸이 자동으로 채워진다 — 여러 날에 걸치는
+                  // 대회면 채워진 값 뒤에 "~20"처럼 직접 덧붙이면 됨 (강제 동기화는 아님).
+                  if (dateLabelRef.current) dateLabelRef.current.value = formatDateLabelFromISO(e.target.value);
+                }}
                 required
                 className="border border-line rounded-sm px-2 py-1 bg-paper-raised text-sm"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-ink-faint">
+              날짜 표기 <span className="normal-case font-normal">(자동 입력, 수정 가능)</span>
+              <input
+                ref={dateLabelRef}
+                name="dateLabel"
+                defaultValue={race?.dateLabel ?? ""}
+                placeholder="달력에서 날짜를 고르면 채워져요"
+                required
+                className="border border-line rounded-sm px-2 py-1 bg-paper-raised text-sm w-32"
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-ink-faint">

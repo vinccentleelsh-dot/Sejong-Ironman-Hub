@@ -2,15 +2,18 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import "leaflet/dist/leaflet.css";
+import type * as LeafletNS from "leaflet";
 import type { CourseAppState, CoursePayload } from "@/lib/course-shared";
 import { sportLabel } from "@/lib/course-shared";
 import { fmtT, tod, niceStep, nearestIdxByKm, segIndexFor } from "@/lib/course-calc";
 import { createCourseAction, updateCourseAction, deleteCourseAction } from "./actions";
 
-// 코스 가이드 화면 — 지도/고도 프로파일(캔버스 자체 렌더링)/CP표/목표시간 슬라이더.
-// 참고 구현체(course-guide-archive-reference.html)의 drawMap/drawProf/refresh/update 로직을
-// React 컴포넌트로 그대로 포팅한 것 — 신규 미리보기(new)/편집 미리보기(edit)/저장된 코스
-// 상세보기(detail) 세 모드에서 공용으로 쓴다.
+// 코스 가이드 화면 — 지도(Leaflet + OpenStreetMap 실제 배경지도)/고도 프로파일(캔버스 자체
+// 렌더링)/CP표/목표시간 슬라이더. 참고 구현체(course-guide-archive-reference.html)는 지도까지
+// 캔버스로 직접 그렸지만(오프라인 목적), 실제 지형을 보여달라는 요청으로 지도만 Leaflet+OSM
+// 실제 배경지도로 교체했다 — 고도 프로파일은 그대로 캔버스. Leaflet은 SSR에서 window를
+// 참조하므로 useEffect 안에서 동적 import한다.
 
 function cssv(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -37,9 +40,11 @@ export default function CourseGuideView({
   const totalKm = track.d[track.d.length - 1];
   const totalLim = cps[cps.length - 1]?.limMin || 0;
 
-  const mapRef = useRef<HTMLCanvasElement>(null);
   const profRef = useRef<HTMLCanvasElement>(null);
-  const projRef = useRef<{ px: (lon: number) => number; py: (lat: number) => number } | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const leafletMapRef = useRef<LeafletNS.Map | null>(null);
+  const leafletLayersRef = useRef<LeafletNS.LayerGroup | null>(null);
+  const cursorMarkerRef = useRef<LeafletNS.CircleMarker | null>(null);
 
   const [cur, setCur] = useState(-1);
   const [goal, setGoal] = useState(() => {
@@ -189,187 +194,185 @@ export default function CourseGuideView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [track, cps, cur]);
 
-  // ---------------- 캔버스: 지도 ----------------
-  const drawMap = useCallback(() => {
-    const cv = mapRef.current;
-    if (!cv) return;
+  // ---------------- 지도: Leaflet + OpenStreetMap (실제 배경지도) ----------------
+  const leafletModuleRef = useRef<typeof LeafletNS | null>(null);
+
+  // 트랙 폴리라인(고도별 색 세그먼트 — 캔버스 버전과 동일한 방식) + CP/봉우리 마커를 다시 그린다.
+  const redrawMapLayers = useCallback(() => {
+    const map = leafletMapRef.current;
+    const L = leafletModuleRef.current;
+    if (!map || !L) return;
     try {
-      const r = window.devicePixelRatio || 1;
-      const b = cv.getBoundingClientRect();
-      if (b.width === 0 || b.height === 0) return;
-      cv.width = Math.round(b.width * r);
-      cv.height = Math.round(b.height * r);
-      const g = cv.getContext("2d");
-      if (!g) return;
-      g.setTransform(r, 0, 0, r, 0, 0);
-      const w = b.width,
-        h = b.height,
-        pad = 34;
-      let latMin = track.la[0],
-        latMax = track.la[0],
-        lonMin = track.lo[0],
-        lonMax = track.lo[0];
-      for (let i = 1; i < track.la.length; i++) {
-        if (track.la[i] < latMin) latMin = track.la[i];
-        if (track.la[i] > latMax) latMax = track.la[i];
-        if (track.lo[i] < lonMin) lonMin = track.lo[i];
-        if (track.lo[i] > lonMax) lonMax = track.lo[i];
-      }
-      const avgLat = (latMin + latMax) / 2,
-        cosLat = Math.cos((avgLat * Math.PI) / 180);
-      const lonSpan = (lonMax - lonMin) * cosLat,
-        latSpan = latMax - latMin;
-      const availW = w - pad * 2,
-        availH = h - pad * 2;
-      const scale = Math.min(availW / Math.max(lonSpan, 1e-9), availH / Math.max(latSpan, 1e-9));
-      const drawW = lonSpan * scale,
-        drawH = latSpan * scale;
-      const offX = pad + (availW - drawW) / 2,
-        offY = pad + (availH - drawH) / 2;
-      const px = (lon: number) => offX + (lon - lonMin) * cosLat * scale;
-      const py = (lat: number) => offY + (latMax - lat) * scale;
-      projRef.current = { px, py };
-      g.clearRect(0, 0, w, h);
+      if (leafletLayersRef.current) leafletLayersRef.current.clearLayers();
+      else leafletLayersRef.current = L.layerGroup().addTo(map);
+      const group = leafletLayersRef.current;
+
       let eMin = track.e[0],
         eMax = track.e[0];
       for (let j = 1; j < track.e.length; j++) {
         if (track.e[j] < eMin) eMin = track.e[j];
         if (track.e[j] > eMax) eMax = track.e[j];
       }
-      g.beginPath();
-      track.la.forEach((la, i) => {
-        const x = px(track.lo[i]),
-          y = py(la);
-        i ? g.lineTo(x, y) : g.moveTo(x, y);
-      });
-      g.strokeStyle = cssv("--paper-raised");
-      g.lineWidth = 6;
-      g.lineJoin = "round";
-      g.lineCap = "round";
-      g.stroke();
+
+      const latlngs = track.la.map((la, i) => [la, track.lo[i]] as [number, number]);
+      L.polyline(latlngs, { color: cssv("--paper-raised"), weight: 6, lineJoin: "round", lineCap: "round" }).addTo(group);
       const N = track.la.length;
       for (let k = 0; k < N - 1; k += 10) {
         const jj = Math.min(k + 10, N - 1);
         let mm = 0;
         for (let kk = k; kk <= jj; kk++) mm += track.e[kk];
         mm /= jj - k + 1;
-        g.beginPath();
-        for (let kk2 = k; kk2 <= jj; kk2++) {
-          const x2 = px(track.lo[kk2]),
-            y2 = py(track.la[kk2]);
-          kk2 === k ? g.moveTo(x2, y2) : g.lineTo(x2, y2);
-        }
-        g.strokeStyle = eleColor(mm, eMin, eMax);
-        g.lineWidth = 3.2;
-        g.lineJoin = "round";
-        g.lineCap = "round";
-        g.stroke();
+        L.polyline(latlngs.slice(k, jj + 1), {
+          color: eleColor(mm, eMin, eMax),
+          weight: 3.2,
+          lineJoin: "round",
+          lineCap: "round",
+        }).addTo(group);
       }
-      const used: Array<{ x: number; y: number }> = [];
+
       cps.forEach((c) => {
-        if (c.idx === undefined || c.idx === null || !track.lo[c.idx]) return;
-        const x = px(track.lo[c.idx]),
-          y = py(track.la[c.idx]);
+        if (c.idx === undefined || c.idx === null || track.lo[c.idx] === undefined) return;
         const isEnd = c.code === "START" || c.code === "FIN";
-        g.beginPath();
-        g.arc(x, y, isEnd ? 6.5 : 5, 0, 7);
-        g.fillStyle = cssv("--paper-raised");
-        g.fill();
-        g.strokeStyle = cssv("--accent");
-        g.lineWidth = 2.5;
-        g.stroke();
-        g.font = '700 10px "IBM Plex Sans",sans-serif';
-        g.textAlign = "center";
-        let ly = y - 10;
-        while (used.some((u) => Math.abs(u.x - x) < 24 && Math.abs(u.y - ly) < 12)) ly -= 13;
-        used.push({ x, y: ly });
-        g.fillStyle = cssv("--accent");
-        g.fillText(c.code, x, ly);
+        L.circleMarker([track.la[c.idx], track.lo[c.idx]], {
+          radius: isEnd ? 6.5 : 5,
+          color: cssv("--accent"),
+          weight: 2.5,
+          fillColor: cssv("--paper-raised"),
+          fillOpacity: 1,
+        })
+          .bindTooltip(c.code, { permanent: true, direction: "top", offset: [0, -6], className: "course-map-label course-map-label-cp" })
+          .addTo(group);
       });
+
       peaks.forEach((p) => {
         const idx = nearestIdxByKm(track.d, p.km);
-        const x = px(track.lo[idx]),
-          y = py(track.la[idx]);
-        g.beginPath();
-        g.moveTo(x, y - 6);
-        g.lineTo(x - 4.5, y + 2);
-        g.lineTo(x + 4.5, y + 2);
-        g.closePath();
-        g.fillStyle = cssv("--gold");
-        g.fill();
-        g.font = '700 9.5px "IBM Plex Sans",sans-serif';
-        g.textAlign = "center";
-        let ly2 = y - 11;
-        while (used.some((u) => Math.abs(u.x - x) < 28 && Math.abs(u.y - ly2) < 12)) ly2 -= 13;
-        used.push({ x, y: ly2 });
-        g.fillStyle = cssv("--gold");
-        g.fillText(p.n, x, ly2);
+        const icon = L.divIcon({
+          className: "course-peak-icon",
+          html: `<svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 14,12 0,12" fill="${cssv(
+            "--gold"
+          )}"/></svg>`,
+          iconSize: [14, 12],
+          iconAnchor: [7, 8],
+        });
+        L.marker([track.la[idx], track.lo[idx]], { icon })
+          .bindTooltip(p.n, { permanent: true, direction: "top", offset: [0, -6], className: "course-map-label course-map-label-peak" })
+          .addTo(group);
       });
-      if (cur >= 0) {
-        const xC = px(track.lo[cur]),
-          yC = py(track.la[cur]);
-        g.beginPath();
-        g.arc(xC, yC, 7, 0, 7);
-        g.fillStyle = cssv("--accent");
-        g.strokeStyle = cssv("--ink");
-        g.lineWidth = 2.5;
-        g.fill();
-        g.stroke();
-      }
+
+      // hover 히트테스트 — 화면 픽셀 기준 최근접 트랙포인트 (기존 캔버스 버전과 같은 감각).
+      // 네임스페이스 이벤트로 걸어서 재실행 시 중복 등록되지 않게 한다.
+      map.off("mousemove.coursehover" as "mousemove");
+      map.on("mousemove.coursehover" as "mousemove", (e: LeafletNS.LeafletMouseEvent) => {
+        const mp = map.latLngToContainerPoint(e.latlng);
+        let best = -1,
+          bd = 1e9;
+        for (let i = 0; i < track.la.length; i++) {
+          const p = map.latLngToContainerPoint([track.la[i], track.lo[i]]);
+          const d = (p.x - mp.x) * (p.x - mp.x) + (p.y - mp.y) * (p.y - mp.y);
+          if (d < bd) {
+            bd = d;
+            best = i;
+          }
+        }
+        if (best >= 0 && bd < 40 * 40) setCur(best);
+      });
+      map.off("mouseout.coursehover" as "mouseout");
+      map.on("mouseout.coursehover" as "mouseout", () => setCur(-1));
     } catch (err) {
-      console.error("drawMap failed:", err);
+      console.error("코스 지도 레이어 그리기 실패:", err);
     }
+  }, [track, cps, peaks]);
+
+  // 지도 생성 — 마운트 시 한 번만 (Leaflet은 SSR에서 window를 참조하므로 동적 import)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!mapContainerRef.current || leafletMapRef.current) return;
+      const mod = await import("leaflet");
+      const L = (mod as unknown as { default?: typeof LeafletNS }).default ?? (mod as unknown as typeof LeafletNS);
+      leafletModuleRef.current = L;
+      if (cancelled || !mapContainerRef.current) return;
+      const map = L.map(mapContainerRef.current);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>',
+      }).addTo(map);
+      const bounds = L.latLngBounds(track.la.map((la, i) => [la, track.lo[i]] as [number, number]));
+      map.fitBounds(bounds, { padding: [24, 24] });
+      leafletMapRef.current = map;
+      redrawMapLayers();
+    })();
+    return () => {
+      cancelled = true;
+      leafletMapRef.current?.remove();
+      leafletMapRef.current = null;
+      leafletLayersRef.current = null;
+      cursorMarkerRef.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [track, cps, peaks, cur]);
+  }, []);
+
+  // track/cps/peaks가 바뀌면(편집 미리보기 재생성 등) 레이어만 다시 그린다
+  useEffect(() => {
+    redrawMapLayers();
+  }, [redrawMapLayers]);
+
+  // 지도 컨테이너 리사이즈 대응 — Leaflet은 invalidateSize를 직접 불러줘야 함
+  useEffect(() => {
+    const container = mapContainerRef.current;
+    if (!container || !window.ResizeObserver) return;
+    const ro = new ResizeObserver(() => leafletMapRef.current?.invalidateSize());
+    ro.observe(container);
+    const t = setTimeout(() => leafletMapRef.current?.invalidateSize(), 150);
+    return () => {
+      ro.disconnect();
+      clearTimeout(t);
+    };
+  }, []);
+
+  // 현재 hover 위치 마커
+  useEffect(() => {
+    const map = leafletMapRef.current;
+    const L = leafletModuleRef.current;
+    if (!map || !L) return;
+    if (cur < 0) {
+      cursorMarkerRef.current?.remove();
+      cursorMarkerRef.current = null;
+      return;
+    }
+    const latlng: [number, number] = [track.la[cur], track.lo[cur]];
+    if (cursorMarkerRef.current) {
+      cursorMarkerRef.current.setLatLng(latlng);
+    } else {
+      cursorMarkerRef.current = L.circleMarker(latlng, {
+        radius: 7,
+        color: cssv("--ink"),
+        weight: 2.5,
+        fillColor: cssv("--accent"),
+        fillOpacity: 1,
+      }).addTo(map);
+    }
+  }, [cur, track]);
 
   useEffect(() => {
     drawProf();
-    drawMap();
-  }, [drawProf, drawMap]);
+  }, [drawProf]);
 
   useEffect(() => {
-    const onResize = () => {
-      drawProf();
-      drawMap();
-    };
-    window.addEventListener("resize", onResize);
-    let ro: ResizeObserver | null = null;
-    if (window.ResizeObserver && mapRef.current && profRef.current) {
-      ro = new ResizeObserver(onResize);
-      ro.observe(mapRef.current);
-      ro.observe(profRef.current);
-    }
-    // 폰트 로딩 등으로 최초 레이아웃이 살짝 늦게 자리잡는 경우 대비
-    const t1 = setTimeout(onResize, 150);
-    const t2 = setTimeout(onResize, 600);
+    const cv = profRef.current;
+    if (!cv || !window.ResizeObserver) return;
+    const ro = new ResizeObserver(() => drawProf());
+    ro.observe(cv);
+    const t1 = setTimeout(() => drawProf(), 150);
+    const t2 = setTimeout(() => drawProf(), 600);
+    window.addEventListener("resize", drawProf);
     return () => {
-      window.removeEventListener("resize", onResize);
-      ro?.disconnect();
+      ro.disconnect();
       clearTimeout(t1);
       clearTimeout(t2);
+      window.removeEventListener("resize", drawProf);
     };
-  }, [drawProf, drawMap]);
-
-  function pickAtMap(clientX: number, clientY: number) {
-    const cv = mapRef.current,
-      proj = projRef.current;
-    if (!cv || !proj) return;
-    const b = cv.getBoundingClientRect();
-    const mx = clientX - b.left,
-      my = clientY - b.top;
-    let best = -1,
-      bd = 1e9;
-    for (let i = 0; i < track.la.length; i++) {
-      const x = proj.px(track.lo[i]),
-        y = proj.py(track.la[i]);
-      const d = (x - mx) * (x - mx) + (y - my) * (y - my);
-      if (d < bd) {
-        bd = d;
-        best = i;
-      }
-    }
-    if (best >= 0 && bd < 40 * 40) setCur(best);
-  }
+  }, [drawProf]);
   function pickAtProf(clientX: number) {
     const cv = profRef.current;
     if (!cv) return;
@@ -515,15 +518,10 @@ export default function CourseGuideView({
       {/* 지도 */}
       <div>
         <p className="font-mono-brand text-[10.5px] tracking-wide uppercase text-accent mb-2">
-          🗺️ 코스 지도 <span className="text-ink-faint normal-case font-normal">— 자체 렌더링, 오프라인 작동</span>
+          🗺️ 코스 지도 <span className="text-ink-faint normal-case font-normal">— OpenStreetMap 배경지도</span>
         </p>
         <div className="h-[380px] rounded-sm bg-paper border border-line overflow-hidden">
-          <canvas
-            ref={mapRef}
-            className="w-full h-full block cursor-crosshair"
-            onPointerMove={(e) => pickAtMap(e.clientX, e.clientY)}
-            onPointerLeave={() => setCur(-1)}
-          />
+          <div ref={mapContainerRef} className="w-full h-full" />
         </div>
       </div>
 

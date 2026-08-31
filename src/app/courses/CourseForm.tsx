@@ -30,12 +30,25 @@ function peaksToText(peaks: CourseDetail["peaks"]): string {
   return peaks.map((p) => `${p.n},${p.km.toFixed(2)}`).join("\n");
 }
 
+// 기존 startDTraw("2026-09-18 14:00")를 달력/시계 입력칸에 다시 채우기 위한 분리
+function splitStartDTraw(raw: string): { date: string; time: string } {
+  const m = raw.trim().match(/^(\d{4}-\d{2}-\d{2})[\sT]+(\d{1,2}:\d{2})$/);
+  if (!m) return { date: "", time: "" };
+  const [h, mm] = m[2].split(":");
+  return { date: m[1], time: `${h.padStart(2, "0")}:${mm}` };
+}
+
 export default function CourseForm({ existing }: { existing?: CourseDetail }) {
   const editing = !!existing;
 
   const [courseName, setCourseName] = useState(existing?.meta.name ?? "");
   const [sport, setSport] = useState(existing?.meta.sport ?? "marathon");
-  const [startDTraw, setStartDTraw] = useState(existing?.meta.startDTraw ?? "");
+  const initSplit = splitStartDTraw(existing?.meta.startDTraw ?? "");
+  const [startDateVal, setStartDateVal] = useState(initSplit.date);
+  const [startTimeVal, setStartTimeVal] = useState(initSplit.time);
+  // parseStartDT(course-calc.ts)가 그대로 인식하는 형식("YYYY-MM-DD HH:MM")으로 합친다 —
+  // 달력/시계로만 고르면 이 문자열이 자동으로 완성되고, 별도 텍스트 입력은 필요 없다.
+  const startDTraw = startDateVal ? `${startDateVal} ${startTimeVal || "00:00"}` : "";
   const [notes, setNotes] = useState(existing?.meta.notes ?? "");
   const [cpText, setCpText] = useState(existing ? cpsToText(existing.cps) : "");
   const [peakText, setPeakText] = useState(existing ? peaksToText(existing.peaks) : "");
@@ -244,13 +257,21 @@ export default function CourseForm({ existing }: { existing?: CourseDetail }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
           <div>
             <label className="block text-xs font-medium text-ink-faint mb-1.5">출발 일시 (선택)</label>
-            <input
-              type="text"
-              value={startDTraw}
-              onChange={(e) => setStartDTraw(e.target.value)}
-              placeholder="예: 2026-09-18 14:00"
-              className="w-full border border-line rounded-sm bg-paper text-ink text-sm px-2.5 py-2"
-            />
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={startDateVal}
+                onChange={(e) => setStartDateVal(e.target.value)}
+                className="flex-1 min-w-0 border border-line rounded-sm bg-paper text-ink text-sm px-2.5 py-2"
+              />
+              <input
+                type="time"
+                value={startTimeVal}
+                onChange={(e) => setStartTimeVal(e.target.value)}
+                disabled={!startDateVal}
+                className="w-[110px] border border-line rounded-sm bg-paper text-ink text-sm px-2.5 py-2 disabled:opacity-50"
+              />
+            </div>
           </div>
           <div>
             <label className="block text-xs font-medium text-ink-faint mb-1.5">메모 (선택)</label>

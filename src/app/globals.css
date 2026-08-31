@@ -125,6 +125,25 @@ body {
   color: var(--ink);
 }
 
+/* 코스 아카이브 지도(Leaflet) — CP/봉우리 라벨을 기본 흰 말풍선 대신 텍스트만 강조하는
+   스타일로 (레퍼런스 구현체의 캔버스 라벨 느낌과 맞춤). */
+.leaflet-tooltip.course-map-label {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  font: 700 10px "IBM Plex Sans", var(--font-body), sans-serif;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.leaflet-tooltip.course-map-label::before {
+  display: none;
+}
+.leaflet-tooltip.course-map-label-peak {
+  color: var(--gold);
+  font-size: 9.5px;
+}
+
 /* ============================================================================
    신규 디자인 시스템 (2026.09 정의) — 토큰만 정의해두고 아직 어떤 페이지/컴포넌트에도
    연결하지 않았다 (@theme inline에도 안 올림, 기존 --paper/--ink 등 브랜드 토큰도 그대로
