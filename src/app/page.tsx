@@ -195,6 +195,9 @@ export default async function DashboardPage() {
             <Link href="/training-plan" className="text-sm font-medium text-accent hover:underline">
               훈련 계획
             </Link>
+            <Link href="/courses" className="text-sm font-medium text-accent hover:underline">
+              코스 아카이브
+            </Link>
             <p className="font-mono-brand text-xs text-ink-faint">{stats.asOf}일 현재 기준</p>
           </div>
         </header>

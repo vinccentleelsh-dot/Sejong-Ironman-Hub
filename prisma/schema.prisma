@@ -137,6 +137,42 @@ model PointRule {
   updatedAt DateTime @default(now()) @updatedAt
 }
 
+// 코스 아카이브 (요구사항: GPX → 코스 가이드 생성 → 계속 쌓이는 라이브러리) — 참고 구현체
+// (course-guide-archive-reference.html)의 "페이지 자체를 재발행" 방식 대신, 이 프로젝트는
+// 실제 DB가 있으니 정상적인 테이블로 저장한다. GPX 원본은 보관하지 않고, 다운샘플된
+// 트랙 배열(위경도/고도/거리 등)과 CP/봉우리만 JSON으로 저장 — 용량 절약 + 이 데이터는
+// 항상 코스 하나 단위로 통째로 읽고 쓰므로 정규화된 개별 테이블보다 JSON 블롭이 더 적합
+// (CompetitionAuditLog.raceSnapshot과 같은 방식).
+//
+// "세종철인 인증" 하나로 전 회원이 등록·수정·삭제 가능 (이 앱엔 개인별 로그인이 없음 —
+// 요구사항 정의서 결정 로그 "회원 로그인 없음"과 동일 원칙, /competitions와 같은 패턴).
+model Course {
+  id String @id @default(cuid())
+
+  name  String // 코스 이름 (필수)
+  sport String // marathon/ultra/trail/tri/cycle/etc — CourseSport 참고 (자유 텍스트, 새 종목 대비)
+  notes String?
+
+  startDTRaw String? // 사용자가 입력한 원문 ("2026-09-18 14:00" 등, 파싱 실패해도 원문은 보존)
+  startDT    DateTime? // 파싱 성공했을 때만 (CP 통과 예상 시각 계산용)
+
+  totalKm    Float
+  gainM      Float // 누적 획득고도(GPX 기준)
+  cpCount    Int
+  hasCutoff  Boolean // CP표에 공식 컷오프/제한시간이 있었는지
+  cpSource   String // "paste" | "gpx" | "auto"
+  paceModel  String // "컷오프 기준" | "GPX 실측시간 기준" | "거리+고도 가중치 기준"
+
+  trackJson String // 다운샘플된 트랙 {la,lo,d,e,g,cg,t,timeAnomalies} — JSON
+  cpsJson   String // 체크포인트 배열 — JSON
+  peaksJson String // 주요 봉우리 배열 — JSON
+
+  createdAt DateTime @default(now()) // 최초 등록일 — 편집해도 안 바뀜
+  updatedAt DateTime @updatedAt // 마지막 수정일 — 편집 시 자동 갱신
+
+  @@index([createdAt])
+}
+
 // 대회기록 감사 로그 — "세종철인 인증" 하나로 전 회원이 열람·수정 가능해지면서, 실수(또는 악의)로
 // 지워지는 걸 대비해 모든 변경을 기록한다. 삭제 건은 스냅샷으로 복구까지 가능하게 한다.
 model CompetitionAuditLog {
