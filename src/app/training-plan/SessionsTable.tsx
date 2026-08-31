@@ -52,30 +52,90 @@ function defaultPoints(category: SessionCategory) {
   return category === "COMPETITION" ? 0 : 3;
 }
 
-function AttendeePicker({ members, defaultChecked }: { members: MemberOption[]; defaultChecked: Set<string> }) {
+// 참석자 체크 + 사람별 포인트 — 훈련은 보통 3점 균일하지만 그날 자원봉사(자봉) 담당은 5점,
+// 대회는 사람마다 완주한 코스가 달라 점수가 제각각(올림픽 20/하프 30/킹 50)이라 사람별로
+// 다르게 입력할 수 있어야 한다. "일괄 적용"으로 기본값을 한 번에 채운 뒤, 특이한 사람만
+// 개별로 고치는 방식.
+function AttendeePicker({
+  members,
+  defaultChecked,
+  defaultPointsByMember,
+  fallbackPoints,
+}: {
+  members: MemberOption[];
+  defaultChecked: Set<string>;
+  defaultPointsByMember: Record<string, number>;
+  fallbackPoints: number;
+}) {
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(defaultChecked);
+  const [pointsById, setPointsById] = useState<Record<string, number>>(defaultPointsByMember);
+  const [bulkValue, setBulkValue] = useState(fallbackPoints);
+
+  function toggle(id: string) {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setPointsById((prev) => (prev[id] !== undefined ? prev : { ...prev, [id]: fallbackPoints }));
+  }
+
+  function applyBulkToChecked() {
+    setPointsById((prev) => {
+      const next = { ...prev };
+      for (const id of checkedIds) next[id] = bulkValue;
+      return next;
+    });
+  }
+
   const active = members.filter((m) => m.isActive);
   const inactive = members.filter((m) => !m.isActive);
-  return (
-    <div className="border border-line rounded-sm bg-paper-raised max-h-48 overflow-y-auto p-2">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1">
-        {active.map((m) => (
-          <label key={m.id} className="flex items-center gap-1.5 text-sm text-ink">
-            <input type="checkbox" name="memberIds" value={m.id} defaultChecked={defaultChecked.has(m.id)} />
-            {m.name}
-          </label>
-        ))}
+
+  function renderMember(m: MemberOption, faint: boolean) {
+    const isChecked = checkedIds.has(m.id);
+    return (
+      <div key={m.id} className="flex items-center gap-1 text-sm min-w-0">
+        <label className={`flex items-center gap-1 min-w-0 ${faint ? "text-ink-faint" : "text-ink"}`}>
+          <input type="checkbox" name="memberIds" value={m.id} checked={isChecked} onChange={() => toggle(m.id)} />
+          <span className="truncate">{m.name}</span>
+        </label>
+        {isChecked && (
+          <input
+            type="number"
+            min="0"
+            name={`points_${m.id}`}
+            value={pointsById[m.id] ?? fallbackPoints}
+            onChange={(e) =>
+              setPointsById((prev) => ({ ...prev, [m.id]: Number(e.target.value) || 0 }))
+            }
+            className="w-12 border border-line rounded-sm px-1 py-0.5 bg-paper-raised text-xs [font-variant-numeric:tabular-nums]"
+          />
+        )}
       </div>
+    );
+  }
+
+  return (
+    <div className="border border-line rounded-sm bg-paper-raised max-h-56 overflow-y-auto p-2">
+      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-line">
+        <span className="text-xs text-ink-faint">체크된 인원에 포인트 일괄 적용</span>
+        <input
+          type="number"
+          min="0"
+          value={bulkValue}
+          onChange={(e) => setBulkValue(Number(e.target.value) || 0)}
+          className="w-14 border border-line rounded-sm px-1 py-0.5 bg-paper text-xs [font-variant-numeric:tabular-nums]"
+        />
+        <button type="button" onClick={applyBulkToChecked} className="text-xs text-accent hover:underline">
+          적용
+        </button>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5">{active.map((m) => renderMember(m, false))}</div>
       {inactive.length > 0 && (
         <>
           <p className="text-[10px] text-ink-faint uppercase tracking-wide mt-2 mb-1">탈퇴 회원</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1">
-            {inactive.map((m) => (
-              <label key={m.id} className="flex items-center gap-1.5 text-sm text-ink-faint">
-                <input type="checkbox" name="memberIds" value={m.id} defaultChecked={defaultChecked.has(m.id)} />
-                {m.name}
-              </label>
-            ))}
-          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5">{inactive.map((m) => renderMember(m, true))}</div>
         </>
       )}
     </div>
@@ -93,7 +153,7 @@ function EditForm({
 }) {
   const currentDisciplines = row.disciplines ? row.disciplines.split(",") : [];
   const attendeeIds = new Set(row.attendees.map((a) => a.memberId));
-  const commonPoints = row.attendees.length > 0 ? row.attendees[0].points : defaultPoints(row.category);
+  const pointsByMember = Object.fromEntries(row.attendees.map((a) => [a.memberId, a.points]));
 
   return (
     <tr className="bg-accent-soft/40">
@@ -204,20 +264,13 @@ function EditForm({
           </div>
 
           <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-ink-faint">참석자 (체크한 전원에게 아래 포인트 일괄 적용)</span>
-              <label className="flex items-center gap-1.5 text-xs text-ink-faint">
-                포인트
-                <input
-                  type="number"
-                  name="points"
-                  min="0"
-                  defaultValue={commonPoints}
-                  className="border border-line rounded-sm px-2 py-1 bg-paper-raised text-sm w-16 [font-variant-numeric:tabular-nums]"
-                />
-              </label>
-            </div>
-            <AttendeePicker members={members} defaultChecked={attendeeIds} />
+            <span className="text-xs text-ink-faint">참석자 · 사람별 포인트 (체크하면 개별 입력칸이 나와요)</span>
+            <AttendeePicker
+              members={members}
+              defaultChecked={attendeeIds}
+              defaultPointsByMember={pointsByMember}
+              fallbackPoints={defaultPoints(row.category)}
+            />
           </div>
 
           <div className="flex gap-2 ml-auto">
@@ -272,21 +325,13 @@ function NewSessionForm({ members, onDone }: { members: MemberOption[]; onDone: 
               대회/행사명
               <input name="title" className="border border-line rounded-sm px-2 py-1.5 bg-paper-raised text-sm w-40" />
             </label>
-            <label className="flex flex-col gap-1 text-xs text-ink-faint">
-              포인트
-              <input
-                type="number"
-                name="points"
-                min="0"
-                defaultValue={3}
-                className="border border-line rounded-sm px-2 py-1.5 bg-paper-raised text-sm w-16"
-              />
-            </label>
           </div>
 
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-ink-faint">참석자 (선택 사항 — 나중에 "수정"으로도 추가 가능)</span>
-            <AttendeePicker members={members} defaultChecked={new Set()} />
+            <span className="text-xs text-ink-faint">
+              참석자 · 사람별 포인트 (선택 사항 — 나중에 "수정"으로도 추가 가능)
+            </span>
+            <AttendeePicker members={members} defaultChecked={new Set()} defaultPointsByMember={{}} fallbackPoints={3} />
           </div>
 
           <div className="flex gap-2">

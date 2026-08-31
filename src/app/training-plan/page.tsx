@@ -73,6 +73,12 @@ export default async function TrainingPlanPage() {
               >
                 데이터 백업
               </Link>
+              <Link
+                href="/admin/settings"
+                className="text-sm font-medium text-accent border border-accent/40 rounded-sm px-3 py-1.5 hover:bg-accent-soft"
+              >
+                관리자 페이지
+              </Link>
               <form action={logoutAction}>
                 <input type="hidden" name="redirectTo" value="/training-plan" />
                 <button type="submit" className="text-sm text-ink-faint hover:text-ink-soft underline">

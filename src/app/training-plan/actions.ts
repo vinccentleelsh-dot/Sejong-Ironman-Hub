@@ -22,12 +22,13 @@ function disciplinesFromForm(formData: FormData): string | null {
   return values.length > 0 ? values.join(",") : null;
 }
 
-// 참석자 체크박스(memberIds) + 공통 포인트(points) → 이 세션의 AttendanceRecord를 그대로
-// 맞춘다. 새로 체크된 사람은 만들고, 체크 해제된 사람은 지우고, 계속 체크된 사람은 포인트를
-// 새 값으로 맞춘다 — "여기서 입력하면 그대로 통계·엑셀에 반영"되어야 하므로.
+// 참석자 체크박스(memberIds) + 사람별 포인트(points_<memberId>) → 이 세션의 AttendanceRecord를
+// 그대로 맞춘다. 새로 체크된 사람은 만들고, 체크 해제된 사람은 지우고, 계속 체크된 사람은
+// 포인트를 새 값으로 맞춘다 — "여기서 입력하면 그대로 통계·엑셀에 반영"되어야 하므로.
+// 포인트는 사람마다 다를 수 있다 (예: 같은 정기훈련이라도 그날 자원봉사 담당은 5점, 나머지는
+// 3점 / 같은 대회라도 완주 코스가 사람마다 달라 20~50점으로 갈림 — 2026.09 결정).
 async function syncAttendance(sessionId: string, formData: FormData) {
   const memberIds = formData.getAll("memberIds").map(String);
-  const points = num(formData, "points") || 3; // 정기훈련/공식행사 기본값
 
   const existing = await prisma.attendanceRecord.findMany({ where: { sessionId }, select: { memberId: true } });
   const existingIds = new Set(existing.map((a) => a.memberId));
@@ -39,6 +40,7 @@ async function syncAttendance(sessionId: string, formData: FormData) {
   }
 
   for (const memberId of memberIds) {
+    const points = num(formData, `points_${memberId}`) || 3; // 폴백 — 사람별 입력칸 값이 없으면 3점
     await prisma.attendanceRecord.upsert({
       where: { memberId_sessionId: { memberId, sessionId } },
       update: { points },

@@ -7,7 +7,7 @@ export async function loginSejongAction(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const redirectTo = String(formData.get("redirectTo") ?? "/competitions");
 
-  if (!checkSejongPassword(password)) {
+  if (!(await checkSejongPassword(password))) {
     redirect(`/competitions/login?error=1&redirectTo=${encodeURIComponent(redirectTo)}`);
   }
 

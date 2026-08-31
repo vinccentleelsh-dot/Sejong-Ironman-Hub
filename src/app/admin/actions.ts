@@ -7,7 +7,7 @@ export async function loginAction(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const redirectTo = String(formData.get("redirectTo") ?? "/training-plan");
 
-  if (!checkAdminPassword(password)) {
+  if (!(await checkAdminPassword(password))) {
     redirect(`/admin/login?error=1&redirectTo=${encodeURIComponent(redirectTo)}`);
   }
 

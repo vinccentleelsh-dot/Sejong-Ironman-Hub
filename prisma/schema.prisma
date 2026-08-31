@@ -82,14 +82,6 @@ model AttendanceRecord {
   @@index([memberId])
 }
 
-// 세철포인트 점수 규정 (엑셀 Sheet1 하단 "대회점수" 표) — 운영자가 추후 조정 가능하도록 테이블로 관리
-model PointRule {
-  id     String @id @default(cuid())
-  label  String @unique // "정기훈련", "리더/보급", "공식대회", "풀코스", "하프코스", "올림픽코스", "자율훈련"
-  points Int
-  note   String?
-}
-
 // 대회 참가 계획 공유 (요구사항 5번)
 // 개인별 자율 등록(+비밀번호) 방식 대신, 운영진이 관리하는 공유 대회 캘린더 한 장으로
 // 재설계 — 원본: "2026_철인3종대회_일정.xlsx". 참가자는 이름을 콤마로 나열한 원문 그대로
@@ -120,6 +112,29 @@ model CompetitionRace {
   updatedAt DateTime @updatedAt
 
   @@index([startDate])
+}
+
+// 운영자 전용 설정값 저장소 — 비밀번호(해시)처럼 배포 후에도 앱 안에서 직접 바꿔야 하는 값.
+// env 변수(ADMIN_PASSWORD 등)는 Vercel 배포 환경에서는 대시보드를 거쳐야만 바뀌므로,
+// "관리자 페이지"에서 직접 바꿀 수 있게 여기 저장한다. 값이 없으면 기존 env 변수로 폴백한다
+// (관리자 페이지에서 한 번도 안 바꿨으면 지금까지 쓰던 값 그대로 동작 — 요구사항 정의서
+// "조용한 실패 금지" 원칙과 별개로, 여긴 오히려 "아무 변경 없음 = 기존 동작 유지"가 맞다).
+model AppSetting {
+  key       String   @id // 예: "admin_password_hash", "sejong_auth_password_hash"
+  value     String // salt:hash 형태 (scrypt) — 평문 비밀번호는 저장하지 않는다
+  updatedAt DateTime @updatedAt
+}
+
+// 세철포인트 점수 규정 (엑셀 Sheet1 하단 "대회점수" 표) — 관리자 페이지에서 조회/수정 가능.
+// 실제 포인트 부여는 훈련계획 페이지에서 사람별로 직접 입력하므로, 이 표는 "지금 기준이 뭔지"
+// 보여주는 참고용 + 앞으로 규정이 바뀌면 여기서 고쳐서 기록해두는 용도.
+model PointRule {
+  id     String @id @default(cuid())
+  label  String @unique // "정기훈련", "자원봉사(자봉)", "올림픽코스", "하프코스", "킹코스" 등
+  points Int
+  note   String?
+
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 // 대회기록 감사 로그 — "세종철인 인증" 하나로 전 회원이 열람·수정 가능해지면서, 실수(또는 악의)로

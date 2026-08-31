@@ -1,5 +1,6 @@
 import { cookies, headers } from "next/headers";
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual, randomBytes, scryptSync } from "node:crypto";
+import { prisma } from "@/lib/db";
 
 // 회원 로그인은 없음 — 운영자 전용 비밀번호 1개로 "쓰기 권한"만 구분한다.
 // (요구사항 정의서 결정 로그: "간단한 운영자 암호 1개면 충분")
@@ -13,6 +14,43 @@ function sign(value: string, secret: string) {
   return createHmac("sha256", secret).update(value).digest("hex");
 }
 
+// 비밀번호 저장소 — 관리자 페이지에서 바꾼 값은 AppSetting 테이블(해시)에 저장된다.
+// Vercel 배포 환경에서는 env 변수를 앱 안에서 바꿀 방법이 없어서(대시보드를 거쳐야 함),
+// "관리자 페이지"에서 직접 바꿀 수 있게 DB로 옮겼다. 한 번도 안 바꿨으면(DB에 값 없음)
+// 기존 env 변수(ADMIN_PASSWORD/SEJONG_AUTH_PASSWORD)로 그대로 동작한다.
+
+function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString("hex");
+  const hash = scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+function verifyPasswordHash(password: string, stored: string): boolean {
+  const [salt, hash] = stored.split(":");
+  if (!salt || !hash) return false;
+  const candidateHash = scryptSync(password, salt, 64);
+  const storedHash = Buffer.from(hash, "hex");
+  if (candidateHash.length !== storedHash.length) return false;
+  return timingSafeEqual(candidateHash, storedHash);
+}
+
+async function getAppSetting(key: string): Promise<string | null> {
+  const row = await prisma.appSetting.findUnique({ where: { key } });
+  return row?.value ?? null;
+}
+
+async function setAppSetting(key: string, value: string) {
+  await prisma.appSetting.upsert({ where: { key }, update: { value }, create: { key, value } });
+}
+
+function checkPlainPassword(password: string, expected: string | undefined): boolean {
+  if (!expected) return false;
+  const a = Buffer.from(password);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
 function getSecret() {
   const secret = process.env.ADMIN_SESSION_SECRET;
   if (!secret) {
@@ -21,14 +59,17 @@ function getSecret() {
   return secret;
 }
 
-export function checkAdminPassword(password: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return false;
-  // 길이가 다르면 timingSafeEqual이 바로 예외를 던지므로 먼저 길이를 맞춰 비교한다.
-  const a = Buffer.from(password);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
+const ADMIN_PASSWORD_KEY = "admin_password_hash";
+
+export async function checkAdminPassword(password: string): Promise<boolean> {
+  const stored = await getAppSetting(ADMIN_PASSWORD_KEY);
+  if (stored) return verifyPasswordHash(password, stored);
+  // 관리자 페이지에서 한 번도 안 바꿨으면 기존 env 변수(.env / Vercel 환경변수)로 폴백
+  return checkPlainPassword(password, process.env.ADMIN_PASSWORD);
+}
+
+export async function setAdminPassword(newPassword: string) {
+  await setAppSetting(ADMIN_PASSWORD_KEY, hashPassword(newPassword));
 }
 
 export function makeAdminToken(): string {
@@ -83,13 +124,16 @@ function getSejongSecret() {
   return secret;
 }
 
-export function checkSejongPassword(password: string): boolean {
-  const expected = process.env.SEJONG_AUTH_PASSWORD;
-  if (!expected) return false;
-  const a = Buffer.from(password);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
+const SEJONG_AUTH_PASSWORD_KEY = "sejong_auth_password_hash";
+
+export async function checkSejongPassword(password: string): Promise<boolean> {
+  const stored = await getAppSetting(SEJONG_AUTH_PASSWORD_KEY);
+  if (stored) return verifyPasswordHash(password, stored);
+  return checkPlainPassword(password, process.env.SEJONG_AUTH_PASSWORD);
+}
+
+export async function setSejongPassword(newPassword: string) {
+  await setAppSetting(SEJONG_AUTH_PASSWORD_KEY, hashPassword(newPassword));
 }
 
 function makeSejongToken(): string {
