@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getDashboardStats } from "@/lib/dashboard";
 import { getCompetitionDashboardStats } from "@/lib/dashboard-competitions";
+import { getCompetitionRaces } from "@/lib/competitions";
+import { RACE_CATEGORY_COLOR } from "@/lib/competitions-shared";
 import DonutChart from "./DonutChart";
 
 const CATEGORY_CHART_COLOR: Record<string, string> = {
@@ -156,7 +158,9 @@ function Leaderboard({
 
 export default async function DashboardPage() {
   const stats = await getDashboardStats();
-  const raceStats = await getCompetitionDashboardStats(new Date().getFullYear());
+  const now = new Date();
+  const raceStats = await getCompetitionDashboardStats(now.getFullYear());
+  const thisMonthRaces = (await getCompetitionRaces(now.getFullYear())).filter((r) => r.month === now.getMonth() + 1);
 
   const trainingTotalKm = stats.distances.swimKm + stats.distances.bikeKm + stats.distances.runKm;
   const courseDistances = stats.courseDistances;
@@ -275,6 +279,51 @@ export default async function DashboardPage() {
               아직 세션별 거리 데이터가 입력되지 않았습니다 — 훈련계획 입력 페이지에서 세션마다 종목별 거리를
               등록하면 여기 자동으로 반영됩니다.
             </p>
+          )}
+        </SectionCard>
+
+        {/* Row 4.5 — 이달의 대회계획 */}
+        <SectionCard title={`이달의 대회계획 · ${now.getMonth() + 1}월`} moreHref="/competitions" moreLabel="대회 캘린더 보기">
+          {thisMonthRaces.length === 0 ? (
+            <p className="text-sm text-ink-faint">이번 달 예정된 대회가 없습니다.</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {thisMonthRaces.map((race) => {
+                const c = RACE_CATEGORY_COLOR[race.category] ?? { text: "var(--ink-soft)", bg: "var(--line)" };
+                return (
+                  <li key={race.id} className="py-2 text-sm flex flex-col gap-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono-brand text-ink-faint whitespace-nowrap">{race.dateLabel}</span>
+                      <span
+                        className="text-[11px] font-medium px-1.5 py-0.5 rounded-sm whitespace-nowrap"
+                        style={{ color: c.text, backgroundColor: c.bg }}
+                      >
+                        {race.category}
+                      </span>
+                      <span className="text-ink font-medium">{race.raceName}</span>
+                    </div>
+                    <p className="text-xs text-ink-faint">
+                      {race.isPending
+                        ? "참가자 미정"
+                        : race.participants.length > 0
+                        ? race.participants.map((p, i) => (
+                            <span key={p.name + i}>
+                              {i > 0 && ", "}
+                              {p.memberId ? (
+                                <Link href={`/members/${p.memberId}`} className="text-ink-soft hover:text-accent hover:underline">
+                                  {p.name}
+                                </Link>
+                              ) : (
+                                p.name
+                              )}
+                            </span>
+                          ))
+                        : "참가자 없음"}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </SectionCard>
 

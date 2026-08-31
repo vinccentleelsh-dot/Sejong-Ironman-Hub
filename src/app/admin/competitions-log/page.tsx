@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { isAdmin } from "@/lib/auth";
+import { isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { restoreRaceAction } from "./actions";
 
@@ -27,8 +27,8 @@ function fmtDateTime(d: Date) {
 }
 
 export default async function CompetitionsLogPage() {
-  const admin = await isAdmin();
-  if (!admin) redirect("/admin/login?redirectTo=/admin/competitions-log");
+  const admin = await isSuperAdmin();
+  if (!admin) redirect("/admin/super-login?redirectTo=/admin/competitions-log");
 
   const logs = await prisma.competitionAuditLog.findMany({
     orderBy: { createdAt: "desc" },

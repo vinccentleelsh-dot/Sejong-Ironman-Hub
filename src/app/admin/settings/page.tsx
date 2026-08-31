@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { isAdmin } from "@/lib/auth";
+import { isSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { superLogoutAction } from "@/app/admin/super-login/actions";
 import { changeAdminPasswordAction, changeSejongPasswordAction, upsertPointRuleAction, deletePointRuleAction } from "./actions";
 import { ChangePasswordForm, PointRuleTable } from "./SettingsForms";
 
@@ -10,8 +11,8 @@ export const dynamic = "force-dynamic";
 const CARD = "bg-paper-raised border border-line rounded-sm shadow-[0_1px_2px_rgba(20,34,32,.06),0_8px_24px_-12px_rgba(20,34,32,.12)] p-4";
 
 export default async function AdminSettingsPage() {
-  const admin = await isAdmin();
-  if (!admin) redirect("/admin/login?redirectTo=/admin/settings");
+  const superAdmin = await isSuperAdmin();
+  if (!superAdmin) redirect("/admin/super-login?redirectTo=/admin/settings");
 
   const pointRules = await prisma.pointRule.findMany({ orderBy: { points: "asc" } });
 
@@ -30,9 +31,17 @@ export default async function AdminSettingsPage() {
               비밀번호 변경, 세철포인트 규정 — 운영진만 접근할 수 있는 페이지예요.
             </p>
           </div>
-          <Link href="/training-plan" className="text-sm font-medium text-accent hover:underline">
-            ← 훈련계획
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/training-plan" className="text-sm font-medium text-accent hover:underline">
+              ← 훈련계획
+            </Link>
+            <form action={superLogoutAction}>
+              <input type="hidden" name="redirectTo" value="/training-plan" />
+              <button type="submit" className="text-sm text-ink-faint hover:text-ink-soft underline">
+                로그아웃
+              </button>
+            </form>
+          </div>
         </header>
 
         <div className={`${CARD} flex flex-col gap-4`}>

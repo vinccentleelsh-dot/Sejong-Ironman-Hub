@@ -133,10 +133,12 @@ export default async function ArchivePage({
           ) : (
             <ol className="grid grid-cols-2 gap-x-6 gap-y-1.5">
               {yearSummary.pointsLeaderboard.map((p, i) => (
-                <li key={p.name} className="flex items-center justify-between text-sm">
+                <li key={p.memberId} className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-2">
                     <span className="font-mono-brand text-[11px] text-ink-faint w-4">{i + 1}</span>
-                    <span className="text-ink font-medium">{p.name}</span>
+                    <Link href={`/members/${p.memberId}`} className="text-ink font-medium hover:text-accent hover:underline">
+                      {p.name}
+                    </Link>
                   </span>
                   <span className="font-mono-brand text-ink-soft [font-variant-numeric:tabular-nums]">{p.points}점</span>
                 </li>
@@ -174,10 +176,12 @@ export default async function ArchivePage({
                     <p className="text-xs text-ink-faint mb-1.5">이 달의 참석 Top5</p>
                     <ol className="space-y-1">
                       {monthSummary.attendanceLeaderboard.map((p, i) => (
-                        <li key={p.name} className="flex items-center justify-between text-sm">
+                        <li key={p.memberId} className="flex items-center justify-between text-sm">
                           <span>
                             <span className="font-mono-brand text-[11px] text-ink-faint mr-2">{i + 1}</span>
-                            {p.name}
+                            <Link href={`/members/${p.memberId}`} className="text-ink hover:text-accent hover:underline">
+                              {p.name}
+                            </Link>
                           </span>
                           <span className="font-mono-brand text-ink-soft">{p.count}회</span>
                         </li>
@@ -188,10 +192,12 @@ export default async function ArchivePage({
                     <p className="text-xs text-ink-faint mb-1.5">이 달의 세철포인트 Top5</p>
                     <ol className="space-y-1">
                       {monthSummary.pointsLeaderboard.map((p, i) => (
-                        <li key={p.name} className="flex items-center justify-between text-sm">
+                        <li key={p.memberId} className="flex items-center justify-between text-sm">
                           <span>
                             <span className="font-mono-brand text-[11px] text-ink-faint mr-2">{i + 1}</span>
-                            {p.name}
+                            <Link href={`/members/${p.memberId}`} className="text-ink hover:text-accent hover:underline">
+                              {p.name}
+                            </Link>
                           </span>
                           <span className="font-mono-brand text-ink-soft">{p.points}점</span>
                         </li>
@@ -211,14 +217,32 @@ export default async function ArchivePage({
                     </thead>
                     <tbody>
                       {monthSummary.sessions.map((s) => (
-                        <tr key={s.id} className="border-b border-line">
+                        <tr key={s.id} className="border-b border-line align-top">
                           <td className="px-2 py-1.5 font-mono-brand text-ink-soft whitespace-nowrap">{s.date}</td>
                           <td className="px-2 py-1.5 text-ink-soft">
                             {CATEGORY_LABELS[s.category as SessionCategory]}
                             {s.title ? ` · ${s.title}` : ""}
                           </td>
-                          <td className="px-2 py-1.5 font-mono-brand text-ink font-medium [font-variant-numeric:tabular-nums]">
-                            {s.attendeeCount}명
+                          <td className="px-2 py-1.5">
+                            {s.attendees.length > 0 ? (
+                              <details className="group">
+                                <summary className="cursor-pointer list-none font-mono-brand text-ink font-medium [font-variant-numeric:tabular-nums] hover:text-accent">
+                                  {s.attendeeCount}명 <span className="text-[10px] text-ink-faint group-open:hidden">▸ 명단 보기</span>
+                                </summary>
+                                <p className="text-xs text-ink-faint mt-1 leading-relaxed">
+                                  {s.attendees.map((a, i) => (
+                                    <span key={a.memberId}>
+                                      {i > 0 && ", "}
+                                      <Link href={`/members/${a.memberId}`} className="hover:text-accent hover:underline">
+                                        {a.name}
+                                      </Link>
+                                    </span>
+                                  ))}
+                                </p>
+                              </details>
+                            ) : (
+                              <span className="font-mono-brand text-ink-faint">0명</span>
+                            )}
                           </td>
                         </tr>
                       ))}

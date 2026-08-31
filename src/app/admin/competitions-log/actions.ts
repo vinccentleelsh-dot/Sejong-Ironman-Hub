@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 
 export async function restoreRaceAction(formData: FormData) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const logId = String(formData.get("logId"));
 
   const log = await prisma.competitionAuditLog.findUnique({ where: { id: logId } });

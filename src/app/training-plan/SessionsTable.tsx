@@ -33,6 +33,9 @@ function fmtDate(iso: string) {
   return `${iso.slice(5).replace(/-/g, ".")} (${days[d.getUTCDay()]})`;
 }
 
+// 분류 배지 — "공식행사"처럼 4음절 라벨이 가로로 너무 넓어져서, 폭을 좁게 고정하고 두 줄로
+// 접히게 한다 (전역 word-break:keep-all은 여기서만 오버라이드 — 짧은 라벨이라 아무데서나
+// 잘려도 "공식/행사"처럼 보기 좋게 2+2로 나뉨).
 function CategoryBadge({ category }: { category: SessionCategory }) {
   const styles: Record<SessionCategory, string> = {
     REGULAR: "bg-accent-soft text-accent",
@@ -41,7 +44,9 @@ function CategoryBadge({ category }: { category: SessionCategory }) {
     FREE_TRAINING: "bg-line text-ink-soft",
   };
   return (
-    <span className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-full ${styles[category]}`}>
+    <span
+      className={`inline-block w-11 text-[11px] font-medium text-center leading-tight px-1 py-0.5 rounded-sm [word-break:break-all] ${styles[category]}`}
+    >
       {CATEGORY_LABELS[category]}
     </span>
   );
@@ -422,7 +427,7 @@ export default function SessionsTable({
                     <CategoryBadge category={row.category} />
                     {row.title && <div className="text-xs text-ink-soft mt-0.5">{row.title}</div>}
                   </td>
-                  <td className="px-2 py-2 text-ink-faint text-xs max-w-[220px] truncate" title={row.description ?? ""}>
+                  <td className="px-2 py-2 text-ink-faint text-xs max-w-[220px] line-clamp-3" title={row.description ?? ""}>
                     {row.description ? oneLine(row.description) : ""}
                   </td>
                   <td className="px-2 py-2 min-w-[160px]">

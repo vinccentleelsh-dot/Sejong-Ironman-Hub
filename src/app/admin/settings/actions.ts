@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin, setAdminPassword, setSejongPassword } from "@/lib/auth";
+import { requireSuperAdmin, setAdminPassword, setSejongPassword } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 function str(formData: FormData, key: string): string {
@@ -9,7 +9,7 @@ function str(formData: FormData, key: string): string {
 }
 
 export async function changeAdminPasswordAction(formData: FormData) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const next = str(formData, "newPassword");
   const confirm = str(formData, "confirmPassword");
   if (next.length < 4) throw new Error("비밀번호는 4자 이상이어야 합니다.");
@@ -18,7 +18,7 @@ export async function changeAdminPasswordAction(formData: FormData) {
 }
 
 export async function changeSejongPasswordAction(formData: FormData) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const next = str(formData, "newPassword");
   const confirm = str(formData, "confirmPassword");
   if (next.length < 4) throw new Error("비밀번호는 4자 이상이어야 합니다.");
@@ -27,7 +27,7 @@ export async function changeSejongPasswordAction(formData: FormData) {
 }
 
 export async function upsertPointRuleAction(formData: FormData) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const id = str(formData, "id");
   const label = str(formData, "label");
   const points = Number(formData.get("points"));
@@ -45,7 +45,7 @@ export async function upsertPointRuleAction(formData: FormData) {
 }
 
 export async function deletePointRuleAction(formData: FormData) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const id = str(formData, "id");
   await prisma.pointRule.delete({ where: { id } });
   revalidatePath("/admin/settings");

@@ -27,7 +27,7 @@ export type YearSummary = {
   totalAttendance: number;
   averageAttendance: number;
   maxSingleDayAttendance: { count: number; date: string } | null;
-  pointsLeaderboard: Array<{ name: string; points: number }>;
+  pointsLeaderboard: Array<{ memberId: string; name: string; points: number }>;
   months: MonthBreakdown[];
 };
 
@@ -37,6 +37,7 @@ export type MonthSessionRow = {
   category: string;
   title: string | null;
   attendeeCount: number;
+  attendees: Array<{ memberId: string; name: string }>;
 };
 
 export type MonthSummary = {
@@ -45,8 +46,8 @@ export type MonthSummary = {
   sessionCount: number;
   totalAttendance: number;
   averageAttendance: number;
-  attendanceLeaderboard: Array<{ name: string; count: number }>;
-  pointsLeaderboard: Array<{ name: string; points: number }>;
+  attendanceLeaderboard: Array<{ memberId: string; name: string; count: number }>;
+  pointsLeaderboard: Array<{ memberId: string; name: string; points: number }>;
   sessions: MonthSessionRow[];
 };
 
@@ -82,14 +83,16 @@ export async function getYearSummary(year: number, today: Date = new Date()): Pr
   }
 
   // 세철포인트는 전체 카테고리(대회 포함) 기준
-  const pointsByMember = new Map<string, number>();
+  const pointsByMember = new Map<string, { name: string; points: number }>();
   for (const s of allSessions) {
     for (const a of s.attendances) {
-      pointsByMember.set(a.member.name, (pointsByMember.get(a.member.name) ?? 0) + a.points);
+      const entry = pointsByMember.get(a.memberId) ?? { name: a.member.name, points: 0 };
+      entry.points += a.points;
+      pointsByMember.set(a.memberId, entry);
     }
   }
   const pointsLeaderboard = Array.from(pointsByMember.entries())
-    .map(([name, points]) => ({ name, points }))
+    .map(([memberId, v]) => ({ memberId, name: v.name, points: v.points }))
     .sort((a, b) => b.points - a.points)
     .slice(0, 10);
 
@@ -135,26 +138,30 @@ export async function getMonthSummary(
   const totalAttendance = sessions.reduce((sum, s) => sum + s.attendances.length, 0);
   const averageAttendance = sessions.length > 0 ? totalAttendance / sessions.length : 0;
 
-  const attendanceCount = new Map<string, number>();
+  const attendanceCount = new Map<string, { name: string; count: number }>();
   for (const s of sessions) {
     for (const a of s.attendances) {
-      attendanceCount.set(a.member.name, (attendanceCount.get(a.member.name) ?? 0) + 1);
+      const entry = attendanceCount.get(a.memberId) ?? { name: a.member.name, count: 0 };
+      entry.count += 1;
+      attendanceCount.set(a.memberId, entry);
     }
   }
   const attendanceLeaderboard = Array.from(attendanceCount.entries())
-    .map(([name, count]) => ({ name, count }))
+    .map(([memberId, v]) => ({ memberId, name: v.name, count: v.count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
   // 세철포인트는 전체 카테고리(대회 포함) 기준
-  const pointsSum = new Map<string, number>();
+  const pointsSum = new Map<string, { name: string; points: number }>();
   for (const s of allSessions) {
     for (const a of s.attendances) {
-      pointsSum.set(a.member.name, (pointsSum.get(a.member.name) ?? 0) + a.points);
+      const entry = pointsSum.get(a.memberId) ?? { name: a.member.name, points: 0 };
+      entry.points += a.points;
+      pointsSum.set(a.memberId, entry);
     }
   }
   const pointsLeaderboard = Array.from(pointsSum.entries())
-    .map(([name, points]) => ({ name, points }))
+    .map(([memberId, v]) => ({ memberId, name: v.name, points: v.points }))
     .sort((a, b) => b.points - a.points)
     .slice(0, 5);
 
@@ -172,6 +179,9 @@ export async function getMonthSummary(
       category: s.category,
       title: s.title,
       attendeeCount: s.attendances.length,
+      attendees: s.attendances
+        .map((a) => ({ memberId: a.memberId, name: a.member.name }))
+        .sort((a, b) => a.name.localeCompare(b.name, "ko")),
     })),
   };
 }

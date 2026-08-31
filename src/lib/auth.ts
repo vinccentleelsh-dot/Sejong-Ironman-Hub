@@ -172,6 +172,71 @@ export async function requireSejongAuth() {
   }
 }
 
+// "관리자 페이지" 전용 — 운영진 비밀번호/세종철인 인증 비밀번호 변경, 세철포인트 규정,
+// 변경 로그·IP 추적처럼 민감한 화면은 운영진 전체(dnsdudwls)가 아니라 딱 한 사람만 접근할 수
+// 있게 완전히 별개의 세 번째 비밀번호로 게이트한다 (2026.09 결정 — "이건 나만 알고 있을 것").
+
+const SUPERADMIN_COOKIE_NAME = "superadmin_token";
+const SUPERADMIN_MARKER = "sejong-superadmin-authenticated";
+
+function getSuperAdminSecret() {
+  const secret = process.env.ADMIN_SESSION_SECRET;
+  if (!secret) {
+    throw new Error("ADMIN_SESSION_SECRET 환경변수가 설정되어 있지 않습니다 (.env 확인).");
+  }
+  // 별도 시크릿을 새로 발급하는 대신 기존 ADMIN_SESSION_SECRET을 다른 마커로 서명해 재사용한다
+  // (쿠키 자체는 admin_token과 이름·값이 달라 완전히 독립적으로 검증됨).
+  return secret;
+}
+
+const SUPERADMIN_PASSWORD_KEY = "superadmin_password_hash";
+
+export async function checkSuperAdminPassword(password: string): Promise<boolean> {
+  const stored = await getAppSetting(SUPERADMIN_PASSWORD_KEY);
+  if (stored) return verifyPasswordHash(password, stored);
+  return checkPlainPassword(password, process.env.SUPERADMIN_PASSWORD);
+}
+
+export async function setSuperAdminPassword(newPassword: string) {
+  await setAppSetting(SUPERADMIN_PASSWORD_KEY, hashPassword(newPassword));
+}
+
+function makeSuperAdminToken(): string {
+  return sign(SUPERADMIN_MARKER, getSuperAdminSecret());
+}
+
+export async function setSuperAdminCookie() {
+  const store = await cookies();
+  store.set(SUPERADMIN_COOKIE_NAME, makeSuperAdminToken(), {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30, // 30일
+  });
+}
+
+export async function clearSuperAdminCookie() {
+  const store = await cookies();
+  store.delete(SUPERADMIN_COOKIE_NAME);
+}
+
+export async function isSuperAdmin(): Promise<boolean> {
+  const store = await cookies();
+  const token = store.get(SUPERADMIN_COOKIE_NAME)?.value;
+  if (!token) return false;
+  const expected = makeSuperAdminToken();
+  const a = Buffer.from(token);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
+export async function requireSuperAdmin() {
+  if (!(await isSuperAdmin())) {
+    throw new Error("관리자 권한이 필요합니다. 먼저 로그인해주세요.");
+  }
+}
+
 // 감사로그용 — 로컬/사설망에서는 정확한 클라이언트 IP를 못 받을 수 있음 (최선 노력).
 export async function getRequestMeta(): Promise<{ ipAddress: string | null; userAgent: string | null }> {
   const h = await headers();
