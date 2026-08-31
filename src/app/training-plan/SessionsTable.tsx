@@ -359,7 +359,9 @@ export default function SessionsTable({
               </th>
               <th className="px-3 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">참석자</th>
               <th className="px-3 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">설명</th>
-              {isAdmin && <th className="px-3 py-2"></th>}
+              {isAdmin && (
+                <th className="px-3 py-2 sticky right-0 bg-paper-raised shadow-[-4px_0_6px_-4px_rgba(20,34,32,.15)]"></th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -399,7 +401,7 @@ export default function SessionsTable({
                     {row.description ? oneLine(row.description) : ""}
                   </td>
                   {isAdmin && (
-                    <td className="px-3 py-2 whitespace-nowrap">
+                    <td className="px-3 py-2 whitespace-nowrap sticky right-0 bg-paper-raised shadow-[-4px_0_6px_-4px_rgba(20,34,32,.15)]">
                       <button
                         onClick={() => setEditingId(row.id)}
                         className="text-xs text-accent hover:underline mr-2"
