@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { listAvailableYears, getYearSummary, getMonthSummary } from "@/lib/archive";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { nowKst } from "@/lib/now";
+import { isSejongAuthed } from "@/lib/auth";
 import type { SessionCategory } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +33,8 @@ export default async function ArchivePage({
 }: {
   searchParams: Promise<{ year?: string; month?: string }>;
 }) {
+  if (!(await isSejongAuthed())) redirect("/competitions/login?redirectTo=/archive");
+
   const params = await searchParams;
   const years = await listAvailableYears();
 

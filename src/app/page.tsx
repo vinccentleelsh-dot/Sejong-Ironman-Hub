@@ -4,6 +4,7 @@ import { getCompetitionDashboardStats, getRaceParticipationLeaderboard } from "@
 import { getCompetitionRaces } from "@/lib/competitions";
 import { RACE_CATEGORY_COLOR } from "@/lib/competitions-shared";
 import { nowKst } from "@/lib/now";
+import { isSejongAuthed } from "@/lib/auth";
 import DonutChart from "./DonutChart";
 
 const CATEGORY_CHART_COLOR: Record<string, string> = {
@@ -13,6 +14,14 @@ const CATEGORY_CHART_COLOR: Record<string, string> = {
   그란폰도: "var(--chart-granfondo)",
   수영: "var(--chart-swim)",
 };
+
+// 대시보드는 전체 공개로 유지하되, 참가자 이름은 세종철인 인증 전에는 가린다 (2026.09 결정).
+// CSS로 블러만 걸면 페이지 소스에 실명이 그대로 남아 보호가 안 되므로, 인증 전에는 애초에
+// 마스킹된 값만 서버에서 내려보낸다 — 실명은 인증됐을 때만 클라이언트에 도달한다.
+function maskName(name: string): string {
+  if (name.length <= 1) return "●";
+  return name[0] + "●".repeat(name.length - 1);
+}
 
 // Windows 한글 경로 / App Router 캐싱 방어 원칙 (요구사항 정의서 10번) — 항상 최신 데이터로 렌더링
 export const dynamic = "force-dynamic";
@@ -130,9 +139,11 @@ function DailyTrendChart({ data }: { data: Array<{ date: string; count: number }
 function Leaderboard({
   items,
   valueLabel,
+  authed,
 }: {
   items: Array<{ memberId: string; name: string; value: number }>;
   valueLabel: string;
+  authed: boolean;
 }) {
   if (items.length === 0) {
     return <p className="text-sm text-ink-faint">데이터 없음</p>;
@@ -143,9 +154,15 @@ function Leaderboard({
         <li key={it.memberId} className="flex items-center justify-between text-sm">
           <span className="flex items-center gap-2">
             <span className="font-mono-brand text-[11px] text-ink-faint w-4">{i + 1}</span>
-            <Link href={`/members/${it.memberId}`} className="text-ink font-medium hover:text-accent hover:underline">
-              {it.name}
-            </Link>
+            {authed ? (
+              <Link href={`/members/${it.memberId}`} className="text-ink font-medium hover:text-accent hover:underline">
+                {it.name}
+              </Link>
+            ) : (
+              <span className="text-ink-faint font-medium blur-[3px] select-none" aria-label="비공개 (세종철인 인증 필요)">
+                {maskName(it.name)}
+              </span>
+            )}
           </span>
           <span className="font-mono-brand text-ink-soft [font-variant-numeric:tabular-nums]">
             {fmtNum(it.value)}
@@ -158,6 +175,7 @@ function Leaderboard({
 }
 
 export default async function DashboardPage() {
+  const authed = await isSejongAuthed();
   const now = nowKst();
   const stats = await getDashboardStats(now);
   const raceStats = await getCompetitionDashboardStats(now.getUTCFullYear());
@@ -245,12 +263,14 @@ export default async function DashboardPage() {
             <Leaderboard
               items={stats.pointsLeaderboard.map((p) => ({ memberId: p.memberId, name: p.name, value: p.points }))}
               valueLabel="점"
+            authed={authed}
             />
           </SectionCard>
           <SectionCard title="이달의 참석 Top 5" moreHref="/members/monthly" moreLabel="이달의 순위 보기">
             <Leaderboard
               items={stats.monthlyAttendanceLeaderboard.map((p) => ({ memberId: p.memberId, name: p.name, value: p.count }))}
               valueLabel="회"
+              authed={authed}
             />
           </SectionCard>
         </div>
@@ -314,7 +334,11 @@ export default async function DashboardPage() {
                         ? race.participants.map((p, i) => (
                             <span key={p.name + i}>
                               {i > 0 && ", "}
-                              {p.memberId ? (
+                              {!authed ? (
+                                <span className="blur-[3px] select-none" aria-label="비공개 (세종철인 인증 필요)">
+                                  {maskName(p.name)}
+                                </span>
+                              ) : p.memberId ? (
                                 <Link href={`/members/${p.memberId}`} className="text-ink-soft hover:text-accent hover:underline">
                                   {p.name}
                                 </Link>
@@ -405,6 +429,7 @@ export default async function DashboardPage() {
           <Leaderboard
             items={raceParticipationLeaderboard.slice(0, 5).map((p) => ({ memberId: p.memberId, name: p.name, value: p.count }))}
             valueLabel="건"
+            authed={authed}
           />
         </SectionCard>
 

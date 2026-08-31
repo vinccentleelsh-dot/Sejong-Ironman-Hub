@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { isAdmin } from "@/lib/auth";
+import { isAdmin, isSejongAuthed } from "@/lib/auth";
 import { logoutAction } from "@/app/admin/actions";
 import SessionsTable from "./SessionsTable";
 import MemberManagement from "./MemberManagement";
@@ -8,6 +9,10 @@ import MemberManagement from "./MemberManagement";
 export const dynamic = "force-dynamic";
 
 export default async function TrainingPlanPage() {
+  // 열람 자체를 세종철인 인증으로 막는다 (개인정보 보호 — 2026.09 결정). 수정 권한은
+  // 별개로 운영자 인증(isAdmin)이 여전히 필요 — 두 인증은 독립적.
+  if (!(await isSejongAuthed())) redirect("/competitions/login?redirectTo=/training-plan");
+
   const admin = await isAdmin();
 
   const [sessions, members] = await Promise.all([
