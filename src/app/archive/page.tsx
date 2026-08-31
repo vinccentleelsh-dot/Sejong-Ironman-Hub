@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listAvailableYears, getYearSummary, getMonthSummary } from "@/lib/archive";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { nowKst } from "@/lib/now";
 import type { SessionCategory } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -161,7 +162,7 @@ export default async function ArchivePage({
 
             {monthSummary.sessionCount === 0 ? (
               <p className="text-sm text-ink-faint">
-                아직 지난 세션이 없습니다 {monthSummary.month > new Date().getUTCMonth() + 1 || year > new Date().getUTCFullYear() ? "(미래 달)" : ""}
+                아직 지난 세션이 없습니다 {monthSummary.month > nowKst().getUTCMonth() + 1 || year > nowKst().getUTCFullYear() ? "(미래 달)" : ""}
               </p>
             ) : (
               <>

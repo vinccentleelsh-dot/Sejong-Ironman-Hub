@@ -2,13 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isSejongAuthed } from "@/lib/auth";
 import { getMemberRanking } from "@/lib/member-profile";
+import { nowKst } from "@/lib/now";
 
 export const dynamic = "force-dynamic";
 
 export default async function MembersRankingPage() {
   if (!(await isSejongAuthed())) redirect("/competitions/login?redirectTo=/members");
 
-  const year = new Date().getFullYear();
+  const year = nowKst().getUTCFullYear();
   const ranking = await getMemberRanking(year);
   const active = ranking.filter((r) => r.isActive);
   const inactive = ranking.filter((r) => !r.isActive);

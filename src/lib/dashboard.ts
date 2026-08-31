@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { ATTENDANCE_STAT_CATEGORIES } from "@/lib/constants";
+import { nowKst } from "@/lib/now";
 
 // "참석 인정 기준" — AttendanceRecord가 존재하고 points > 0이면 그 날 "참석"으로 집계한다.
 // (요구사항 정의서 09번 결정 로그 참고: 엑셀 점수규정을 그대로 출석 기준으로 사용)
@@ -35,9 +36,9 @@ function fmtDate(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 function fmtAsOf(d: Date) {
-  const y = d.getFullYear().toString().slice(2);
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const y = d.getUTCFullYear().toString().slice(2);
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
   return `${y}.${m}.${day}`;
 }
 
@@ -45,9 +46,11 @@ function isStatCategory(category: string) {
   return (ATTENDANCE_STAT_CATEGORIES as string[]).includes(category);
 }
 
-export async function getDashboardStats(now: Date = new Date()): Promise<DashboardStats> {
-  const year = now.getFullYear();
-  const month = now.getMonth(); // 0-based
+// now는 반드시 nowKst()로 KST 보정된 값을 넘길 것 — 그래야 아래 getUTCFullYear/getUTCMonth가
+// 실제 한국 날짜를 가리킨다 (src/lib/now.ts 참고).
+export async function getDashboardStats(now: Date = nowKst()): Promise<DashboardStats> {
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth(); // 0-based
 
   const yearStart = new Date(Date.UTC(year, 0, 1));
   const nextYearStart = new Date(Date.UTC(year + 1, 0, 1));

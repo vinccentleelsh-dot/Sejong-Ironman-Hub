@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { ATTENDANCE_STAT_CATEGORIES } from "@/lib/constants";
+import { nowKst } from "@/lib/now";
 
 // 개인 통계 페이지 (요구사항 7번) — 회원 로그인이 없으므로 조회는 완전 공개.
 // "올해" 랭킹·포인트는 메인 대시보드/Top5 위젯과 정의를 맞춘다 (참석 인정 기준 = 포인트>0,
@@ -21,7 +22,7 @@ export type MemberRankingRow = {
   rank: number;
 };
 
-export async function getMemberRanking(year: number, today: Date = new Date()): Promise<MemberRankingRow[]> {
+export async function getMemberRanking(year: number, today: Date = nowKst()): Promise<MemberRankingRow[]> {
   const yearStart = new Date(Date.UTC(year, 0, 1));
   const nextYearStart = new Date(Date.UTC(year + 1, 0, 1));
 
@@ -63,7 +64,7 @@ export type MonthlyMemberRankingRow = {
 export async function getMonthlyMemberRanking(
   year: number,
   month: number, // 0-based (Date.getMonth())
-  today: Date = new Date()
+  today: Date = nowKst()
 ): Promise<MonthlyMemberRankingRow[]> {
   const monthStart = new Date(Date.UTC(year, month, 1));
   const nextMonthStart = new Date(Date.UTC(year, month + 1, 1));
@@ -108,7 +109,7 @@ export type MemberProfile = {
 export async function getMemberProfile(
   memberId: string,
   year: number,
-  today: Date = new Date()
+  today: Date = nowKst()
 ): Promise<MemberProfile | null> {
   const member = await prisma.member.findUnique({ where: { id: memberId } });
   if (!member) return null;

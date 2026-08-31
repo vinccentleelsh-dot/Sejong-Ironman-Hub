@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import type { CompetitionRaceRow, ParticipantMatch } from "@/lib/competitions-shared";
+import { nowKst } from "@/lib/now";
 
 // 대회 참가 계획 공유 (요구사항 5번) — 운영진이 관리하는 공유 대회 캘린더 (서버 전용 조회).
 // 참가자는 이름 텍스트로 저장하고, 화면에 보여줄 때 기존 회원 이름과 대소문자 무관
@@ -26,7 +27,7 @@ function parseParticipants(
 export async function listAvailableCompetitionYears(): Promise<number[]> {
   const races = await prisma.competitionRace.findMany({ select: { startDate: true } });
   const years = new Set(races.map((r) => r.startDate.getUTCFullYear()));
-  const current = new Date().getUTCFullYear();
+  const current = nowKst().getUTCFullYear();
   years.add(current); // 데이터가 아직 없어도 올해 탭은 항상 보이게
   return Array.from(years).sort((a, b) => b - a);
 }

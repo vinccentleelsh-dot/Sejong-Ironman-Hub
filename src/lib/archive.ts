@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { ATTENDANCE_STAT_CATEGORIES } from "@/lib/constants";
+import { nowKst } from "@/lib/now";
 
 // 연/월 히스토리 아카이브 — 메인 대시보드(올해/이번달 "실시간" 기준)와 달리, 특정 연도·월을
 // 고정해서 그 기간만 조회한다. 단, 아직 오지 않은 세션은 참석자가 0명인 게 당연하므로
@@ -61,7 +62,7 @@ function fmtDate(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
-export async function getYearSummary(year: number, today: Date = new Date()): Promise<YearSummary> {
+export async function getYearSummary(year: number, today: Date = nowKst()): Promise<YearSummary> {
   const yearStart = new Date(Date.UTC(year, 0, 1));
   const nextYearStart = new Date(Date.UTC(year + 1, 0, 1));
 
@@ -123,7 +124,7 @@ export async function getYearSummary(year: number, today: Date = new Date()): Pr
 export async function getMonthSummary(
   year: number,
   month: number,
-  today: Date = new Date()
+  today: Date = nowKst()
 ): Promise<MonthSummary> {
   const monthStart = new Date(Date.UTC(year, month - 1, 1));
   const nextMonthStart = new Date(Date.UTC(year, month, 1));

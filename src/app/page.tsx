@@ -3,6 +3,7 @@ import { getDashboardStats } from "@/lib/dashboard";
 import { getCompetitionDashboardStats } from "@/lib/dashboard-competitions";
 import { getCompetitionRaces } from "@/lib/competitions";
 import { RACE_CATEGORY_COLOR } from "@/lib/competitions-shared";
+import { nowKst } from "@/lib/now";
 import DonutChart from "./DonutChart";
 
 const CATEGORY_CHART_COLOR: Record<string, string> = {
@@ -157,10 +158,10 @@ function Leaderboard({
 }
 
 export default async function DashboardPage() {
-  const stats = await getDashboardStats();
-  const now = new Date();
-  const raceStats = await getCompetitionDashboardStats(now.getFullYear());
-  const thisMonthRaces = (await getCompetitionRaces(now.getFullYear())).filter((r) => r.month === now.getMonth() + 1);
+  const now = nowKst();
+  const stats = await getDashboardStats(now);
+  const raceStats = await getCompetitionDashboardStats(now.getUTCFullYear());
+  const thisMonthRaces = (await getCompetitionRaces(now.getUTCFullYear())).filter((r) => r.month === now.getUTCMonth() + 1);
 
   const trainingTotalKm = stats.distances.swimKm + stats.distances.bikeKm + stats.distances.runKm;
   const courseDistances = stats.courseDistances;
@@ -283,7 +284,7 @@ export default async function DashboardPage() {
         </SectionCard>
 
         {/* Row 4.5 — 이달의 대회계획 */}
-        <SectionCard title={`이달의 대회계획 · ${now.getMonth() + 1}월`} moreHref="/competitions" moreLabel="대회 캘린더 보기">
+        <SectionCard title={`이달의 대회계획 · ${now.getUTCMonth() + 1}월`} moreHref="/competitions" moreLabel="대회 캘린더 보기">
           {thisMonthRaces.length === 0 ? (
             <p className="text-sm text-ink-faint">이번 달 예정된 대회가 없습니다.</p>
           ) : (
@@ -328,7 +329,7 @@ export default async function DashboardPage() {
         </SectionCard>
 
         {/* Row 5 — 대회 통계 */}
-        <SectionCard title={`${new Date().getFullYear()}년 대회 통계`} moreHref="/competitions" moreLabel="대회 캘린더 보기">
+        <SectionCard title={`${now.getUTCFullYear()}년 대회 통계`} moreHref="/competitions" moreLabel="대회 캘린더 보기">
           <div className="flex flex-wrap gap-3 mb-4">
             <StatCard label="전체 참가대회수" value={fmtNum(raceStats.raceCount)} unit="건" />
             <StatCard label="총 참가자" value={fmtNum(raceStats.totalParticipants)} unit="명" />

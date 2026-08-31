@@ -2,15 +2,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isSejongAuthed } from "@/lib/auth";
 import { getMonthlyMemberRanking } from "@/lib/member-profile";
+import { nowKst } from "@/lib/now";
 
 export const dynamic = "force-dynamic";
 
 export default async function MonthlyRankingPage() {
   if (!(await isSejongAuthed())) redirect("/competitions/login?redirectTo=/members/monthly");
 
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  const now = nowKst();
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth();
   const ranking = await getMonthlyMemberRanking(year, month, now);
   const monthLabel = `${year}년 ${month + 1}월`;
 

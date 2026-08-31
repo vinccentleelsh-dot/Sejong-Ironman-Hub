@@ -5,6 +5,7 @@ import { getMemberCompetitionHistory } from "@/lib/competitions";
 import { isSejongAuthed } from "@/lib/auth";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { RACE_CATEGORY_COLOR, formatTotalKm } from "@/lib/competitions-shared";
+import { nowKst } from "@/lib/now";
 import type { SessionCategory } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +30,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
   const { id } = await params;
   if (!(await isSejongAuthed())) redirect(`/competitions/login?redirectTo=/members/${id}`);
 
-  const year = new Date().getFullYear();
+  const year = nowKst().getUTCFullYear();
   const profile = await getMemberProfile(id, year);
   if (!profile) notFound();
 
