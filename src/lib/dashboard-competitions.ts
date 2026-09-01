@@ -76,7 +76,7 @@ export async function getRaceParticipationLeaderboard(year: number): Promise<Rac
   });
 }
 
-// "대회 마일리지" — 종목별 km에 가중치를 곱해서 합산하는 점수제 (수영 6점/km, 자전거 1점/km,
+// "대회 마일리지" — 종목별 km에 가중치를 곱해서 합산하는 점수제 (수영 20점/km, 자전거 1점/km,
 // 달리기 3점/km — 2026.09 결정). 세철포인트(출석 기반, 운영자가 직접 입력)와는 완전히 별개
 // 시스템이다.
 //
@@ -84,7 +84,7 @@ export async function getRaceParticipationLeaderboard(year: number): Promise<Rac
 // 어느 종목에 얼마나 가중치를 줘야 할지 알 수 없으므로, 억지로 배분하지 않고 정직하게
 // 그 대회는 마일리지 계산에서 제외한다 (총거리 통계와는 이 점이 다르다 — 총거리는 총합에만
 // 넣고 넘어갈 수 있지만, 마일리지는 종목별 가중치가 핵심이라 배분 불가 시 계산 자체가 불가능).
-const MILEAGE_WEIGHT = { swim: 6, bike: 1, run: 3 } as const;
+const MILEAGE_WEIGHT = { swim: 20, bike: 1, run: 3 } as const; // 2026.09 조정 — 수영 6→20
 
 export type MileageRow = { memberId: string; name: string; points: number; rank: number };
 

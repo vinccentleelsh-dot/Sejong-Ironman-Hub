@@ -24,7 +24,7 @@ export default async function MileagePage() {
             </p>
             <h1 className="font-display text-2xl text-ink">{year}년 대회 마일리지</h1>
             <p className="text-sm text-ink-soft mt-1">
-              수영 1km=6점, 자전거 1km=1점, 달리기 1km=3점으로 환산한 점수예요 (세철포인트와는 별개 시스템).
+              수영 1km=20점, 자전거 1km=1점, 달리기 1km=3점으로 환산한 점수예요 (세철포인트와는 별개 시스템).
               종목별 거리가 안 갈라지는 대회는 계산에서 제외했어요.
             </p>
           </div>

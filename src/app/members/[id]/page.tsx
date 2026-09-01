@@ -203,7 +203,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
             <p className="text-sm text-ink-soft">아직 마일리지로 계산할 수 있는 대회 기록이 없습니다.</p>
           )}
           <p className="text-xs text-ink-faint mt-2">
-            수영 1km=6점, 자전거 1km=1점, 달리기 1km=3점으로 환산 (세철포인트와는 별개 시스템 — 종목별 거리가
+            수영 1km=20점, 자전거 1km=1점, 달리기 1km=3점으로 환산 (세철포인트와는 별개 시스템 — 종목별 거리가
             안 갈라지는 대회는 제외).
           </p>
         </div>

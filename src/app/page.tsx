@@ -441,7 +441,7 @@ export default async function DashboardPage() {
           moreHref="/members/mileage"
           moreLabel="전체 마일리지 보기"
         >
-          <p className="text-xs text-ink-faint -mt-1 mb-2.5">수영 1km=6점, 자전거 1km=1점, 달리기 1km=3점 (세철포인트와는 별개)</p>
+          <p className="text-xs text-ink-faint -mt-1 mb-2.5">수영 1km=20점, 자전거 1km=1점, 달리기 1km=3점 (세철포인트와는 별개)</p>
           <Leaderboard
             items={mileageLeaderboard.slice(0, 5).map((p) => ({ memberId: p.memberId, name: p.name, value: p.points, rank: p.rank }))}
             valueLabel="점"
