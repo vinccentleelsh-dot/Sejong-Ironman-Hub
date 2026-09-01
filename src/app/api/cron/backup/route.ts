@@ -6,12 +6,17 @@ import { prisma } from "@/lib/db";
 // 데이터를 JSON으로 묶어 Vercel Blob에 올린다. Vercel 서버리스 함수는 파일시스템이
 // 휘발성이라(재시작마다 사라짐) "로컬에 저장"이 불가능해서, 외부 저장소(Blob)가 꼭 필요하다.
 //
+// access: "private" — 회원 이름이 들어간 파일이라 URL만 알아도 열리는 public 대신, 인증된
+// 요청(OIDC/BLOB_READ_WRITE_TOKEN)으로만 읽을 수 있는 private 스토어를 쓴다. 실제 다운로드는
+// 운영자 인증이 걸린 /admin/export 페이지 → /api/admin/backups/download 라우트를 통해서만
+// 가능하다 (2026.09 결정 — Private Storage 정식 출시에 맞춰 public에서 전환).
+//
 // AppSetting(운영자/세종철인/관리자 비밀번호 해시)은 일부러 백업에서 뺐다 — 복구 시나리오에서
 // 굳이 해시를 여기저기 중복 보관할 이유가 없고, 필요하면 관리자 페이지에서 다시 설정하면 됨.
 //
 // 보관 정책: 최근 12개(약 3개월치, 매주 백업 기준)만 남기고 오래된 건 자동 삭제.
-const RETENTION_COUNT = 12;
-const BLOB_PREFIX = "db-backups/";
+export const RETENTION_COUNT = 12;
+export const BLOB_PREFIX = "db-backups/";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -50,7 +55,7 @@ export async function GET(request: Request) {
 
     const filename = `${BLOB_PREFIX}sejong-hub-${backup.exportedAt.replace(/[:.]/g, "-")}.json`;
     const blob = await put(filename, JSON.stringify(backup, null, 2), {
-      access: "public",
+      access: "private",
       contentType: "application/json",
       addRandomSuffix: false,
     });
