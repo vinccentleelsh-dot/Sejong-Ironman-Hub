@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireSejongAuth } from "@/lib/auth";
+import { logCourseAction } from "@/lib/course-audit";
 import type { CoursePayload } from "@/lib/course-shared";
 
 // 코스 아카이브 — "세종철인 인증" 하나로 전 회원이 등록·수정·삭제 가능 (/competitions와 동일
@@ -44,6 +45,7 @@ export async function createCourseAction(payload: CoursePayload): Promise<{ id: 
     },
   });
 
+  await logCourseAction("CREATE", created);
   revalidatePath("/courses");
   return { id: created.id };
 }
@@ -52,7 +54,7 @@ export async function updateCourseAction(id: string, payload: CoursePayload): Pr
   await requireSejongAuth();
   validatePayload(payload);
 
-  await prisma.course.update({
+  const updated = await prisma.course.update({
     where: { id },
     data: {
       name: payload.meta.name.trim(),
@@ -73,12 +75,14 @@ export async function updateCourseAction(id: string, payload: CoursePayload): Pr
     },
   });
 
+  await logCourseAction("UPDATE", updated);
   revalidatePath("/courses");
   revalidatePath(`/courses/${id}`);
 }
 
 export async function deleteCourseAction(id: string): Promise<void> {
   await requireSejongAuth();
-  await prisma.course.delete({ where: { id } });
+  const deleted = await prisma.course.delete({ where: { id } });
+  await logCourseAction("DELETE", deleted);
   revalidatePath("/courses");
 }

@@ -698,6 +698,12 @@ export default function CourseGuideView({
         )}
         {mode === "detail" && courseId && (
           <>
+            <a
+              href={`/api/courses/${courseId}/gpx`}
+              className="border border-line text-ink text-sm rounded-sm px-5 py-2.5 hover:bg-paper inline-flex items-center"
+            >
+              ⬇ GPX 다운로드
+            </a>
             <button
               type="button"
               onClick={() => router.push(`/courses/${courseId}/edit`)}

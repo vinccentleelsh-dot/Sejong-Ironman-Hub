@@ -1,7 +1,8 @@
 // 코스 아카이브 — GPX 파싱 / CP 파싱 / 목표시간 계산 로직.
 // 참고 구현체(course-guide-archive-reference.html)의 로직을 그대로 포팅한 것 — 알고리즘은
-// 새로 설계하지 않고 그대로 옮겼다. GPX 업로드는 항상 브라우저에서 일어나므로(파일 input),
-// parseGPX는 DOMParser(브라우저 전용)를 쓴다 — 이 파일은 "use client" 컴포넌트에서만 호출할 것.
+// 새로 설계하지 않고 그대로 옮겼다. 대부분의 함수는 순수 계산이라 서버/클라이언트 어디서나
+// 안전하다 — 예외는 parseGPX 하나뿐, DOMParser(브라우저 전용)를 쓰므로 "use client"
+// 컴포넌트에서만 호출할 것 (GPX 업로드 자체가 항상 브라우저 파일 input에서 일어나므로 문제 없음).
 
 import type { TrackData, CheckPoint, Peak } from "@/lib/course-shared";
 
@@ -383,4 +384,26 @@ export function segIndexFor(cps: CheckPoint[], km: number): number {
     if (km <= cps[i].km) break;
   }
   return s;
+}
+
+// 저장된 트랙(다운샘플된 위경도/고도)으로부터 GPX 파일을 다시 만든다 — 원본 GPX 자체는
+// 저장하지 않으므로(용량 절약 결정) 다운로드는 이 재구성된 파일이다. 원본보다 포인트 수는
+// 적지만(~900개) 실사용(워치 업로드·다른 지도 앱 가져오기)엔 충분하다.
+// <time> 태그는 일부러 안 넣는다 — track.t는 "원본 업로드 시점의 상대 경과시간"일 뿐 실제
+// 녹화 시각이 아니라서, 시각을 지어내는 것보다 아예 빼는 게 정직하다 (가짜 정밀도 금지 원칙).
+export function buildGpxXml(name: string, track: TrackData): string {
+  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const trkpts = track.la
+    .map((la, i) => `      <trkpt lat="${la}" lon="${track.lo[i]}"><ele>${track.e[i]}</ele></trkpt>`)
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="세종철인 훈련허브" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>${esc(name)}</name>
+    <trkseg>
+${trkpts}
+    </trkseg>
+  </trk>
+</gpx>
+`;
 }

@@ -71,12 +71,17 @@ export default async function AdminSettingsPage() {
         <div className={CARD}>
           <p className="font-mono-brand text-[10.5px] tracking-wide uppercase text-accent mb-2">변경 로그 · IP 추적</p>
           <p className="text-sm text-ink-soft mb-3">
-            대회기록 등록/수정/삭제 이력과 IP를 확인할 수 있어요 (운영진 로그인이 필요해서
-            이미 관리자만 볼 수 있는 페이지예요).
+            대회기록·코스 아카이브의 등록/수정/삭제 이력과 IP를 확인하고, 삭제 건은 복구할 수
+            있어요.
           </p>
-          <Link href="/admin/competitions-log" className="text-sm font-medium text-accent hover:underline">
-            로그 보기 →
-          </Link>
+          <div className="flex gap-4">
+            <Link href="/admin/competitions-log" className="text-sm font-medium text-accent hover:underline">
+              대회기록 로그 →
+            </Link>
+            <Link href="/admin/course-log" className="text-sm font-medium text-accent hover:underline">
+              코스 아카이브 로그 →
+            </Link>
+          </div>
         </div>
 
         <footer className="text-center text-xs text-ink-faint font-mono-brand pt-4 pb-8">

@@ -173,6 +173,26 @@ model Course {
   @@index([createdAt])
 }
 
+// 코스 아카이브 감사 로그 — CompetitionAuditLog와 동일한 원칙(세종철인 인증 하나로 전 회원이
+// 등록·수정·삭제 가능해서, 실수·악의적 삭제에 대비해 모든 변경을 기록). "관리자 페이지"
+// (superadmin)에서만 조회·복구 가능.
+model CourseAuditLog {
+  id String @id @default(cuid())
+
+  action         String // "CREATE" | "UPDATE" | "DELETE"
+  courseSnapshot String // 변경 시점의 Course 전체 필드를 JSON으로 저장 (삭제 복구용)
+  courseId       String? // 삭제된 뒤에도 로그는 남아야 하므로 FK로 물지 않는다
+
+  ipAddress String?
+  userAgent String?
+
+  restoredAt DateTime? // DELETE 건을 복구했다면 그 시각
+
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 // 대회기록 감사 로그 — "세종철인 인증" 하나로 전 회원이 열람·수정 가능해지면서, 실수(또는 악의)로
 // 지워지는 걸 대비해 모든 변경을 기록한다. 삭제 건은 스냅샷으로 복구까지 가능하게 한다.
 model CompetitionAuditLog {
