@@ -259,10 +259,12 @@ export default function CourseGuideView({
           .addTo(group);
       });
 
-      // hover 히트테스트 — 화면 픽셀 기준 최근접 트랙포인트 (기존 캔버스 버전과 같은 감각).
-      // 네임스페이스 이벤트로 걸어서 재실행 시 중복 등록되지 않게 한다.
-      map.off("mousemove.coursehover" as "mousemove");
-      map.on("mousemove.coursehover" as "mousemove", (e: LeafletNS.LeafletMouseEvent) => {
+      // hover 히트테스트 — 화면 픽셀 기준 최근접 트랙포인트. mousemove는 마우스 버튼을 누른
+      // 채(=지도를 드래그/팬하는 중)여도 계속 발생하므로 이거 하나로 호버·드래그 둘 다
+      // 커버된다. 모바일은 "호버" 개념이 없어서(손가락은 늘 드래그) 짧게 톡 찍는 탭까지
+      // 잡으려면 click도 같이 걸어야 한다. 네임스페이스 이벤트로 걸어서 재실행 시 중복
+      // 등록되지 않게 한다.
+      const pickAt = (e: LeafletNS.LeafletMouseEvent) => {
         const mp = map.latLngToContainerPoint(e.latlng);
         let best = -1,
           bd = 1e9;
@@ -275,7 +277,11 @@ export default function CourseGuideView({
           }
         }
         if (best >= 0 && bd < 40 * 40) setCur(best);
-      });
+      };
+      map.off("mousemove.coursehover" as "mousemove");
+      map.off("click.coursehover" as "click");
+      map.on("mousemove.coursehover" as "mousemove", pickAt);
+      map.on("click.coursehover" as "click", pickAt);
       map.off("mouseout.coursehover" as "mouseout");
       map.on("mouseout.coursehover" as "mouseout", () => setCur(-1));
     } catch (err) {
@@ -521,7 +527,9 @@ export default function CourseGuideView({
           🗺️ 코스 지도 <span className="text-ink-faint normal-case font-normal">— OpenStreetMap 배경지도</span>
         </p>
         <div className="h-[380px] rounded-sm bg-paper border border-line overflow-hidden">
-          <div ref={mapContainerRef} className="w-full h-full" />
+          {/* touch-action: none — 없으면 모바일에서 지도를 손가락으로 드래그할 때 브라우저가
+              "페이지 스크롤"로 오인해서 제스처를 중간에 끊어버린다 (실제로 겪은 버그). */}
+          <div ref={mapContainerRef} className="w-full h-full [touch-action:none]" />
         </div>
       </div>
 
@@ -531,7 +539,7 @@ export default function CourseGuideView({
         <div className="h-[200px] rounded-sm bg-paper border border-line overflow-hidden">
           <canvas
             ref={profRef}
-            className="w-full h-full block cursor-crosshair"
+            className="w-full h-full block cursor-crosshair [touch-action:none]"
             onPointerMove={(e) => pickAtProf(e.clientX)}
             onPointerLeave={() => setCur(-1)}
           />
