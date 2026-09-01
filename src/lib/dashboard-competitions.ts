@@ -4,7 +4,7 @@ import { nowKst } from "@/lib/now";
 
 // 오늘(KST) 날짜를 "YYYY-MM-DD" 문자열로 — CompetitionRaceRow.startDate와 같은 포맷이라
 // 문자열 비교로 바로 "이미 지난 대회인지" 가릴 수 있다.
-function todayDateStr(): string {
+export function todayDateStr(): string {
   const n = nowKst();
   const mm = String(n.getUTCMonth() + 1).padStart(2, "0");
   const dd = String(n.getUTCDate()).padStart(2, "0");

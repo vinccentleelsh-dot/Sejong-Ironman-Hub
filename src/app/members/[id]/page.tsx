@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getMemberProfile } from "@/lib/member-profile";
 import { getMemberCompetitionHistory } from "@/lib/competitions";
-import { getMileageLeaderboard } from "@/lib/dashboard-competitions";
+import { getMileageLeaderboard, todayDateStr } from "@/lib/dashboard-competitions";
 import { isSejongAuthed } from "@/lib/auth";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { RACE_CATEGORY_COLOR, formatTotalKm } from "@/lib/competitions-shared";
@@ -35,10 +35,16 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
   const profile = await getMemberProfile(id, year);
   if (!profile) notFound();
 
-  const competitionHistory = await getMemberCompetitionHistory(profile.name);
+  const allCompetitionHistory = await getMemberCompetitionHistory(profile.name);
 
-  // 대회 참가 누적거리 — "대회 참가 이력"과 같은 범위(전체 기간)로, 종목별 km이 있는
-  // 대회만 더한다 (거리가 안 갈라지는 대회는 정직하게 빼고 excludedCount로 알려준다).
+  // "참가 이력"(이미 열린 대회)과 "참가 계획"(아직 안 열린 대회)을 나눈다 — 계획은 아직
+  // 뛴 게 아니므로 실적(누적거리 등)에 넣으면 안 된다 (2026.09 결정).
+  const today = todayDateStr();
+  const competitionHistory = allCompetitionHistory.filter((r) => r.startDate <= today);
+  const competitionPlans = allCompetitionHistory.filter((r) => r.startDate > today);
+
+  // 대회 참가 누적거리 — 실제로 열린(이미 뛴) 대회만, 종목별 km이 있는 대회만 더한다
+  // (거리가 안 갈라지는 대회는 정직하게 빼고 excludedCount로 알려준다).
   let compSwimKm = 0;
   let compBikeKm = 0;
   let compRunKm = 0;
@@ -163,7 +169,39 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
         </div>
 
         <div className="bg-paper-raised border border-line rounded-sm p-4 shadow-[0_1px_2px_rgba(20,34,32,.06),0_8px_24px_-12px_rgba(20,34,32,.12)]">
-          <p className="font-mono-brand text-[10.5px] tracking-wide uppercase text-accent mb-2">대회 참가 누적거리</p>
+          <p className="font-mono-brand text-[10.5px] tracking-wide uppercase text-pending mb-1">
+            대회 참가 계획 · {competitionPlans.length}건
+          </p>
+          <p className="text-xs text-ink-faint mb-3">아직 열리지 않은 대회예요 — 누적거리·마일리지에는 반영되지 않습니다.</p>
+          {competitionPlans.length === 0 ? (
+            <p className="text-sm text-ink-faint">예정된 대회가 없습니다.</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {competitionPlans.map((race) => {
+                const c = RACE_CATEGORY_COLOR[race.category] ?? { text: "var(--ink-soft)", bg: "var(--line)" };
+                return (
+                  <li key={race.id} className="flex items-center justify-between py-2 text-sm gap-3">
+                    <span className="font-mono-brand text-ink-faint whitespace-nowrap">{race.dateLabel}</span>
+                    <span
+                      className="text-[11px] font-medium px-1.5 py-0.5 rounded-sm whitespace-nowrap"
+                      style={{ color: c.text, backgroundColor: c.bg }}
+                    >
+                      {race.category}
+                    </span>
+                    <span className="text-ink-soft flex-1 truncate">{race.raceName}</span>
+                    <span className="font-mono-brand text-ink-faint text-xs whitespace-nowrap">
+                      {formatTotalKm(race.totalKmDisplay) ? `${formatTotalKm(race.totalKmDisplay)}km` : ""}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        <div className="bg-paper-raised border border-line rounded-sm p-4 shadow-[0_1px_2px_rgba(20,34,32,.06),0_8px_24px_-12px_rgba(20,34,32,.12)]">
+          <p className="font-mono-brand text-[10.5px] tracking-wide uppercase text-accent mb-1">대회 참가 누적거리</p>
+          <p className="text-xs text-ink-faint mb-2">실제로 열린 대회만 반영 — 위 "대회 참가 계획"은 포함하지 않습니다.</p>
           {compTotalKm > 0 ? (
             <>
               <div className="flex gap-6 font-mono-brand [font-variant-numeric:tabular-nums]">
