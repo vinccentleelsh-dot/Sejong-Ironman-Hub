@@ -76,6 +76,64 @@ export async function getRaceParticipationLeaderboard(year: number): Promise<Rac
   });
 }
 
+// "대회 마일리지" — 종목별 km에 가중치를 곱해서 합산하는 점수제 (수영 6점/km, 자전거 1점/km,
+// 달리기 3점/km — 2026.09 결정). 세철포인트(출석 기반, 운영자가 직접 입력)와는 완전히 별개
+// 시스템이다.
+//
+// 종목별 km이 안 갈라지는 대회(예: 철인3종인데 세부 breakdown 없이 총거리만 있는 경우)는
+// 어느 종목에 얼마나 가중치를 줘야 할지 알 수 없으므로, 억지로 배분하지 않고 정직하게
+// 그 대회는 마일리지 계산에서 제외한다 (총거리 통계와는 이 점이 다르다 — 총거리는 총합에만
+// 넣고 넘어갈 수 있지만, 마일리지는 종목별 가중치가 핵심이라 배분 불가 시 계산 자체가 불가능).
+const MILEAGE_WEIGHT = { swim: 6, bike: 1, run: 3 } as const;
+
+export type MileageRow = { memberId: string; name: string; points: number; rank: number };
+
+export async function getMileageLeaderboard(year?: number): Promise<MileageRow[]> {
+  const today = todayDateStr();
+  const races = (await getCompetitionRaces(year)).filter((r) => !r.isPending && r.startDate <= today);
+
+  const byMember = new Map<string, { name: string; points: number }>();
+  for (const race of races) {
+    const sKm = race.swimKm ?? 0;
+    const bKm = race.bikeKm ?? 0;
+    const rKm = race.runKm ?? 0;
+    let racePoints = 0;
+
+    if (sKm + bKm + rKm > 0) {
+      racePoints = sKm * MILEAGE_WEIGHT.swim + bKm * MILEAGE_WEIGHT.bike + rKm * MILEAGE_WEIGHT.run;
+    } else {
+      const trimmed = (race.totalKmDisplay ?? "").trim();
+      if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+        const parsed = Number(trimmed);
+        const disc = CATEGORY_IMPLIED_DISCIPLINE[race.category];
+        if (disc === "swim") racePoints = parsed * MILEAGE_WEIGHT.swim;
+        else if (disc === "bike") racePoints = parsed * MILEAGE_WEIGHT.bike;
+        else if (disc === "run") racePoints = parsed * MILEAGE_WEIGHT.run;
+        // 철인3종처럼 혼합 종목인데 세부 분해가 없으면 racePoints는 0으로 남겨 제외한다
+      }
+      // 숫자로도 안 떨어지는 특수 표기는 애초에 racePoints=0 → 이 대회는 마일리지에 반영 안 됨
+    }
+
+    if (racePoints <= 0) continue;
+    for (const p of race.participants) {
+      if (!p.memberId) continue;
+      const entry = byMember.get(p.memberId) ?? { name: p.name, points: 0 };
+      entry.points += racePoints;
+      byMember.set(p.memberId, entry);
+    }
+  }
+
+  const sorted = Array.from(byMember.entries())
+    .map(([memberId, v]) => ({ memberId, name: v.name, points: Math.round(v.points * 10) / 10 }))
+    .sort((a, b) => b.points - a.points);
+
+  let rank = 0;
+  return sorted.map((r, i) => {
+    if (i === 0 || r.points !== sorted[i - 1].points) rank = i + 1;
+    return { ...r, rank };
+  });
+}
+
 export async function getCompetitionDashboardStats(year: number): Promise<CompetitionDashboardStats> {
   const today = todayDateStr();
   // 아직 열리지 않은(오늘 이후) 대회는 "참가 실적" 통계에 넣지 않는다 — 아직 안 뛰었으므로.

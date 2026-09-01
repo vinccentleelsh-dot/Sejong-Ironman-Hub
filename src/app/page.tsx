@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getDashboardStats } from "@/lib/dashboard";
-import { getCompetitionDashboardStats, getRaceParticipationLeaderboard } from "@/lib/dashboard-competitions";
+import { getCompetitionDashboardStats, getRaceParticipationLeaderboard, getMileageLeaderboard } from "@/lib/dashboard-competitions";
 import { getCompetitionRaces } from "@/lib/competitions";
 import { RACE_CATEGORY_COLOR, formatTotalKm } from "@/lib/competitions-shared";
 import { nowKst } from "@/lib/now";
@@ -186,6 +186,7 @@ export default async function DashboardPage() {
   const stats = await getDashboardStats(now);
   const raceStats = await getCompetitionDashboardStats(now.getUTCFullYear());
   const raceParticipationLeaderboard = await getRaceParticipationLeaderboard(now.getUTCFullYear());
+  const mileageLeaderboard = await getMileageLeaderboard(now.getUTCFullYear());
   const thisMonthRaces = (await getCompetitionRaces(now.getUTCFullYear())).filter((r) => r.month === now.getUTCMonth() + 1);
 
   const trainingTotalKm = stats.distances.swimKm + stats.distances.bikeKm + stats.distances.runKm;
@@ -430,6 +431,20 @@ export default async function DashboardPage() {
               .slice(0, 5)
               .map((p) => ({ memberId: p.memberId, name: p.name, value: p.count, rank: p.rank }))}
             valueLabel="건"
+            authed={authed}
+          />
+        </SectionCard>
+
+        {/* Row 5.6 — 대회 마일리지 Top5 */}
+        <SectionCard
+          title={`${now.getUTCFullYear()}년 대회 마일리지 Top 5`}
+          moreHref="/members/mileage"
+          moreLabel="전체 마일리지 보기"
+        >
+          <p className="text-xs text-ink-faint -mt-1 mb-2.5">수영 1km=6점, 자전거 1km=1점, 달리기 1km=3점 (세철포인트와는 별개)</p>
+          <Leaderboard
+            items={mileageLeaderboard.slice(0, 5).map((p) => ({ memberId: p.memberId, name: p.name, value: p.points, rank: p.rank }))}
+            valueLabel="점"
             authed={authed}
           />
         </SectionCard>
