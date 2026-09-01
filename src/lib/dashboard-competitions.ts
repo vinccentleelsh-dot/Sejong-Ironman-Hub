@@ -1,5 +1,15 @@
 import { getCompetitionRaces } from "@/lib/competitions";
 import { RACE_CATEGORIES } from "@/lib/competitions-shared";
+import { nowKst } from "@/lib/now";
+
+// 오늘(KST) 날짜를 "YYYY-MM-DD" 문자열로 — CompetitionRaceRow.startDate와 같은 포맷이라
+// 문자열 비교로 바로 "이미 지난 대회인지" 가릴 수 있다.
+function todayDateStr(): string {
+  const n = nowKst();
+  const mm = String(n.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(n.getUTCDate()).padStart(2, "0");
+  return `${n.getUTCFullYear()}-${mm}-${dd}`;
+}
 
 // 대시보드 맨 아래 "대회 통계" 섹션용 집계 — 대시보드의 나머지 위젯과 같이 "올해" 기준.
 // "참가한 대회"만 센다(참가자 미정인 대회는 아직 실적이 아니므로 제외) — 요구사항 그대로.
@@ -39,8 +49,10 @@ export type RaceParticipationRow = { memberId: string; name: string; count: numb
 
 // "대회 참가횟수" 랭킹 — 올해(year) 기준으로 몇 개 대회에 참가했는지 인원별 집계.
 // 이름이 회원 명단과 매칭 안 된 참가자(게스트·오탈자)는 프로필로 링크할 수 없어서 제외한다.
+// 아직 열리지 않은(오늘 이후) 대회는 "참가 실적"이 아니므로 제외한다 — 2026.09 결정.
 export async function getRaceParticipationLeaderboard(year: number): Promise<RaceParticipationRow[]> {
-  const races = (await getCompetitionRaces(year)).filter((r) => !r.isPending);
+  const today = todayDateStr();
+  const races = (await getCompetitionRaces(year)).filter((r) => !r.isPending && r.startDate <= today);
 
   const countByMember = new Map<string, { name: string; count: number }>();
   for (const race of races) {
@@ -52,14 +64,22 @@ export async function getRaceParticipationLeaderboard(year: number): Promise<Rac
     }
   }
 
-  return Array.from(countByMember.entries())
+  const sorted = Array.from(countByMember.entries())
     .map(([memberId, v]) => ({ memberId, name: v.name, count: v.count }))
-    .sort((a, b) => b.count - a.count)
-    .map((r, i) => ({ ...r, rank: i + 1 }));
+    .sort((a, b) => b.count - a.count);
+
+  // 동점자는 같은 순위 — 다음 등수는 인원수만큼 건너뛴다(표준 스포츠 순위 방식, 예: 1,2,2,4).
+  let rank = 0;
+  return sorted.map((r, i) => {
+    if (i === 0 || r.count !== sorted[i - 1].count) rank = i + 1;
+    return { ...r, rank };
+  });
 }
 
 export async function getCompetitionDashboardStats(year: number): Promise<CompetitionDashboardStats> {
-  const races = (await getCompetitionRaces(year)).filter((r) => !r.isPending);
+  const today = todayDateStr();
+  // 아직 열리지 않은(오늘 이후) 대회는 "참가 실적" 통계에 넣지 않는다 — 아직 안 뛰었으므로.
+  const races = (await getCompetitionRaces(year)).filter((r) => !r.isPending && r.startDate <= today);
 
   let swimKm = 0;
   let bikeKm = 0;

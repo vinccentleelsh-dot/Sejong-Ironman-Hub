@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getDashboardStats } from "@/lib/dashboard";
 import { getCompetitionDashboardStats, getRaceParticipationLeaderboard } from "@/lib/dashboard-competitions";
 import { getCompetitionRaces } from "@/lib/competitions";
-import { RACE_CATEGORY_COLOR } from "@/lib/competitions-shared";
+import { RACE_CATEGORY_COLOR, formatTotalKm } from "@/lib/competitions-shared";
 import { nowKst } from "@/lib/now";
 import { isSejongAuthed } from "@/lib/auth";
 import DonutChart from "./DonutChart";
@@ -115,6 +115,11 @@ function DailyTrendChart({ data }: { data: Array<{ date: string; count: number }
         />
         {data.map((d, i) => (
           <g key={d.date + i}>
+            {/* 실제 보이는 점보다 히트영역을 넓게 잡아서(r=8, 투명) 마우스 올리기 쉽게 하고,
+                네이티브 <title>로 호버 툴팁을 띄운다 (DonutChart와 동일한 무JS 방식). */}
+            <circle cx={padLeft + i * stepX} cy={yFor(d.count)} r={8} fill="transparent">
+              <title>{`${d.date}: ${d.count}명`}</title>
+            </circle>
             <circle cx={padLeft + i * stepX} cy={yFor(d.count)} r={2.5} fill="var(--accent)" />
             <text
               x={padLeft + i * stepX}
@@ -141,7 +146,7 @@ function Leaderboard({
   valueLabel,
   authed,
 }: {
-  items: Array<{ memberId: string; name: string; value: number }>;
+  items: Array<{ memberId: string; name: string; value: number; rank?: number }>;
   valueLabel: string;
   authed: boolean;
 }) {
@@ -153,7 +158,8 @@ function Leaderboard({
       {items.map((it, i) => (
         <li key={it.memberId} className="flex items-center justify-between text-sm">
           <span className="flex items-center gap-2">
-            <span className="font-mono-brand text-[11px] text-ink-faint w-4">{i + 1}</span>
+            {/* rank가 주어지면(동점 처리된 값) 그걸 쓰고, 없으면 목록 순서 그대로 */}
+            <span className="font-mono-brand text-[11px] text-ink-faint w-4">{it.rank ?? i + 1}</span>
             {authed ? (
               <Link href={`/members/${it.memberId}`} className="text-ink font-medium hover:text-accent hover:underline">
                 {it.name}
@@ -203,21 +209,7 @@ export default async function DashboardPage() {
             </p>
             <h1 className="font-display text-2xl text-ink">세종철인 훈련허브</h1>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/archive" className="text-sm font-medium text-accent hover:underline">
-              지난 기록
-            </Link>
-            <Link href="/competitions" className="text-sm font-medium text-accent hover:underline">
-              대회 계획
-            </Link>
-            <Link href="/training-plan" className="text-sm font-medium text-accent hover:underline">
-              훈련 계획
-            </Link>
-            <Link href="/courses" className="text-sm font-medium text-accent hover:underline">
-              코스 아카이브
-            </Link>
-            <p className="font-mono-brand text-xs text-ink-faint">{stats.asOf}일 현재 기준</p>
-          </div>
+          <p className="font-mono-brand text-xs text-ink-faint">{stats.asOf}일 현재 기준</p>
         </header>
 
         {/* Row 1 — 상단 통계 카드 */}
@@ -263,7 +255,7 @@ export default async function DashboardPage() {
             <Leaderboard
               items={stats.pointsLeaderboard.map((p) => ({ memberId: p.memberId, name: p.name, value: p.points }))}
               valueLabel="점"
-            authed={authed}
+              authed // 세철포인트 Top5는 마스킹 제외 — 2026.09 결정 (다른 리더보드는 그대로 마스킹)
             />
           </SectionCard>
           <SectionCard title="이달의 참석 Top 5" moreHref="/members/monthly" moreLabel="이달의 순위 보기">
@@ -326,6 +318,13 @@ export default async function DashboardPage() {
                         {race.category}
                       </span>
                       <span className="text-ink font-medium">{race.raceName}</span>
+                      {(race.courseDetail || formatTotalKm(race.totalKmDisplay)) && (
+                        <span className="text-ink-faint">
+                          {[race.courseDetail, formatTotalKm(race.totalKmDisplay) ? `${formatTotalKm(race.totalKmDisplay)}km` : null]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-ink-faint">
                       {race.isPending
@@ -427,7 +426,9 @@ export default async function DashboardPage() {
           moreLabel="전체 참가횟수 보기"
         >
           <Leaderboard
-            items={raceParticipationLeaderboard.slice(0, 5).map((p) => ({ memberId: p.memberId, name: p.name, value: p.count }))}
+            items={raceParticipationLeaderboard
+              .slice(0, 5)
+              .map((p) => ({ memberId: p.memberId, name: p.name, value: p.count, rank: p.rank }))}
             valueLabel="건"
             authed={authed}
           />
