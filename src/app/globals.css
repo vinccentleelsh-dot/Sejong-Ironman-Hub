@@ -125,6 +125,44 @@ body {
   color: var(--ink);
 }
 
+/* 코스 아카이브 목록 — km 범위 이중 슬라이더. range input 두 개를 겹쳐놓고 트랙은
+   pointer-events:none으로 죽이고 손잡이(thumb)만 클릭되게 하는 표준 트릭. */
+.km-range-thumb {
+  position: absolute;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  pointer-events: none;
+  margin: 0;
+}
+.km-range-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.km-range-thumb::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--paper-raised);
+  border: 2px solid var(--accent);
+  cursor: pointer;
+  margin-top: 0;
+}
+.km-range-thumb::-moz-range-track {
+  background: transparent;
+}
+.km-range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--paper-raised);
+  border: 2px solid var(--accent);
+  cursor: pointer;
+}
+
 /* 코스 아카이브 큐시트 — 대회 중 인쇄해서 들고 뛰는 용도라, CP 배지/컷오프 경고 배경색이
    인쇄 시에도 그대로 나오게 강제한다(브라우저 기본값은 잉크 절약을 위해 배경색을 인쇄에서
    빼버림). @page 여백도 살짝 좁혀서 표가 한 장에 더 들어가게 한다. */

@@ -24,21 +24,108 @@ function sparklinePath(eArr: number[], w: number, h: number): string {
     .join(" ");
 }
 
+// km 범위 슬라이더 — 두 개의 range input을 겹쳐서 양쪽 손잡이로 최소/최대를 각각 잡는
+// 흔한 트릭. 트랙은 pointer-events:none, 손잡이(::-webkit-slider-thumb 등)만 클릭 가능하게
+// globals.css에서 처리한다.
+function KmRangeSlider({
+  bounds,
+  value,
+  onChange,
+}: {
+  bounds: { min: number; max: number };
+  value: [number, number];
+  onChange: (v: [number, number]) => void;
+}) {
+  const [lo, hi] = value;
+  const span = Math.max(1, bounds.max - bounds.min);
+  const loPct = ((lo - bounds.min) / span) * 100;
+  const hiPct = ((hi - bounds.min) / span) * 100;
+  const narrowed = lo !== bounds.min || hi !== bounds.max;
+  return (
+    <div className="flex flex-col gap-1.5 min-w-[220px] flex-1 bg-paper border border-line rounded-sm px-3 py-2">
+      <div className="flex items-center justify-between text-xs text-ink-faint">
+        <span>📏 거리(km)로 좁혀보기</span>
+        <span className="flex items-center gap-2">
+          <span className="font-mono-brand text-ink font-medium [font-variant-numeric:tabular-nums]">
+            {lo}km ~ {hi}km
+          </span>
+          {narrowed && (
+            <button
+              type="button"
+              onClick={() => onChange([bounds.min, bounds.max])}
+              className="text-accent hover:underline"
+            >
+              초기화
+            </button>
+          )}
+        </span>
+      </div>
+      <div className="relative h-5">
+        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 rounded-full bg-line" />
+        <div
+          className="absolute top-1/2 -translate-y-1/2 h-1 rounded-full bg-accent"
+          style={{ left: `${loPct}%`, right: `${100 - hiPct}%` }}
+        />
+        <input
+          type="range"
+          min={bounds.min}
+          max={bounds.max}
+          value={lo}
+          onChange={(e) => onChange([Math.min(Number(e.target.value), hi), hi])}
+          className="km-range-thumb absolute inset-0 w-full"
+          aria-label="최소 거리(km)"
+        />
+        <input
+          type="range"
+          min={bounds.min}
+          max={bounds.max}
+          value={hi}
+          onChange={(e) => onChange([lo, Math.max(Number(e.target.value), lo)])}
+          className="km-range-thumb absolute inset-0 w-full"
+          aria-label="최대 거리(km)"
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function CourseLibrary({ courses, canEdit }: { courses: CourseCardRow[]; canEdit: boolean }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [sportFilter, setSportFilter] = useState("all");
+  // km 범위 필터 — 운동 종목을 하나 고른 상태에서만 활성화된다(코스가 많아질수록 "이
+  // 종목 중에서 30~60km만" 같은 좁히기가 필요하다는 요청). [min, max] 또는 아직 안 정한
+  // 상태(null, "전체"거나 그 종목 코스가 없을 때).
+  const [kmRange, setKmRange] = useState<[number, number] | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const kmBounds = useMemo(() => {
+    if (sportFilter === "all") return null;
+    const kms = courses.filter((c) => c.sport === sportFilter).map((c) => c.totalKm);
+    if (kms.length === 0) return null;
+    return { min: Math.floor(Math.min(...kms)), max: Math.ceil(Math.max(...kms)) };
+  }, [courses, sportFilter]);
+
+  function selectSport(id: string) {
+    setSportFilter(id);
+    if (id === "all") {
+      setKmRange(null);
+      return;
+    }
+    const kms = courses.filter((c) => c.sport === id).map((c) => c.totalKm);
+    setKmRange(kms.length ? [Math.floor(Math.min(...kms)), Math.ceil(Math.max(...kms))] : null);
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return courses.filter((c) => {
       if (sportFilter !== "all" && c.sport !== sportFilter) return false;
       if (q && !c.name.toLowerCase().includes(q)) return false;
+      if (sportFilter !== "all" && kmRange && (c.totalKm < kmRange[0] || c.totalKm > kmRange[1])) return false;
       return true;
     });
-  }, [courses, query, sportFilter]);
+  }, [courses, query, sportFilter, kmRange]);
 
   async function handleDelete(e: React.MouseEvent, c: CourseCardRow) {
     e.stopPropagation();
@@ -67,7 +154,7 @@ export default function CourseLibrary({ courses, canEdit }: { courses: CourseCar
         <div className="flex gap-1.5 flex-wrap">
           <button
             type="button"
-            onClick={() => setSportFilter("all")}
+            onClick={() => selectSport("all")}
             className={`text-xs font-medium rounded-full border px-3 py-1.5 ${
               sportFilter === "all" ? "bg-accent text-accent-ink border-accent" : "bg-line border-line text-ink hover:bg-paper-raised"
             }`}
@@ -78,7 +165,7 @@ export default function CourseLibrary({ courses, canEdit }: { courses: CourseCar
             <button
               key={s.id}
               type="button"
-              onClick={() => setSportFilter(s.id)}
+              onClick={() => selectSport(s.id)}
               className={`text-xs font-medium rounded-full border px-3 py-1.5 ${
                 sportFilter === s.id ? "bg-accent text-accent-ink border-accent" : "bg-line border-line text-ink hover:bg-paper-raised"
               }`}
@@ -88,6 +175,11 @@ export default function CourseLibrary({ courses, canEdit }: { courses: CourseCar
           ))}
         </div>
       </div>
+
+      {/* km 범위 필터 — 운동 종목을 하나 고르면(=sportFilter !== "all") 그때만 나타난다 */}
+      {sportFilter !== "all" && kmBounds && kmRange && kmBounds.min < kmBounds.max && (
+        <KmRangeSlider bounds={kmBounds} value={kmRange} onChange={setKmRange} />
+      )}
 
       {error && <p className="text-sm text-pending bg-pending-soft border border-pending/30 rounded-sm px-3 py-2">{error}</p>}
 
