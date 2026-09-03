@@ -125,6 +125,20 @@ body {
   color: var(--ink);
 }
 
+/* 코스 아카이브 큐시트 — 대회 중 인쇄해서 들고 뛰는 용도라, CP 배지/컷오프 경고 배경색이
+   인쇄 시에도 그대로 나오게 강제한다(브라우저 기본값은 잉크 절약을 위해 배경색을 인쇄에서
+   빼버림). @page 여백도 살짝 좁혀서 표가 한 장에 더 들어가게 한다. */
+.cuesheet-print,
+.cuesheet-print * {
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+@media print {
+  @page {
+    margin: 10mm;
+  }
+}
+
 /* 코스 아카이브 지도(Leaflet) — CP/봉우리 라벨을 기본 흰 말풍선 대신 텍스트만 강조하는
    스타일로 (레퍼런스 구현체의 캔버스 라벨 느낌과 맞춤). */
 .leaflet-tooltip.course-map-label {

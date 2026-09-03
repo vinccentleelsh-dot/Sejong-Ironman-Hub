@@ -11,7 +11,7 @@ const NAV_ITEMS = [
 
 export default function TopNav() {
   return (
-    <div className="bg-paper-raised border-b border-line">
+    <div className="print:hidden bg-paper-raised border-b border-line">
       <div className="max-w-3xl mx-auto px-4 py-2 flex items-center gap-4 overflow-x-auto">
         <Link href="/" className="text-xs font-mono-brand uppercase tracking-wide text-accent hover:underline whitespace-nowrap">
           세종철인 훈련허브

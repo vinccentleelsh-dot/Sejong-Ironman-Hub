@@ -706,6 +706,13 @@ export default function CourseGuideView({
         )}
         {mode === "detail" && courseId && (
           <>
+            <button
+              type="button"
+              onClick={() => router.push(`/courses/${courseId}/cuesheet?goal=${goal}`)}
+              className="bg-accent text-accent-ink font-medium text-sm rounded-sm px-5 py-2.5 hover:opacity-90"
+            >
+              🧾 큐시트 보기
+            </button>
             <a
               href={`/api/courses/${courseId}/gpx`}
               className="border border-line text-ink text-sm rounded-sm px-5 py-2.5 hover:bg-paper inline-flex items-center"

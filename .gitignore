@@ -52,3 +52,6 @@ prisma/backups/
 
 # 일회성 DB 이관용 SQL 덤프 — 회원 실명 등 개인정보 포함, 절대 커밋 금지
 dev-dump.sql
+
+.vercel
+.env*

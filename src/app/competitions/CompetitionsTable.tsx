@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   createRaceAction,
@@ -322,6 +322,51 @@ function RaceForm({
 
 const COL_COUNT = 10; // 월,날짜,대회명,세부종목,참가자,분류,S/B/R,전체,획득고도,관리(수정/삭제)
 
+// 정렬 가능한 컬럼은 요청받은 4개(월/날짜/분류/전체km)만 — 나머지(대회명·참가자 등)는
+// 정렬해도 크게 쓸모가 없어서 그대로 둔다.
+type SortKey = "month" | "date" | "category" | "totalKm";
+
+// "1.5(수영)+스카이런 2,917계단"처럼 숫자로 안 떨어지는 표기는 정렬 기준에서 뺀다(가짜
+// 정밀도 금지 원칙과 동일 — 억지로 순서를 매기지 않고, 정렬 시 맨 뒤로 보낸다).
+function parseKmValue(display: string | null): number | null {
+  if (!display) return null;
+  const trimmed = display.trim();
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+    const n = Number(trimmed);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+function SortHeader({
+  label,
+  className,
+  active,
+  dir,
+  onClick,
+}: {
+  label: string;
+  className: string;
+  active: boolean;
+  dir: "asc" | "desc";
+  onClick: () => void;
+}) {
+  return (
+    <th className={className}>
+      <button
+        type="button"
+        onClick={onClick}
+        className={`inline-flex items-center gap-0.5 hover:text-accent ${active ? "text-accent" : ""}`}
+      >
+        {label}
+        <span className="text-[9px]" aria-hidden>
+          {active ? (dir === "asc" ? "▲" : "▼") : "⋮"}
+        </span>
+      </button>
+    </th>
+  );
+}
+
 export default function CompetitionsTable({
   races,
   members,
@@ -334,6 +379,46 @@ export default function CompetitionsTable({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  }
+
+  // 정렬 안 한 기본 상태는 서버가 준 원래 순서(날짜순) 그대로 — 정렬 버튼을 눌렀을 때만
+  // 복사본을 만들어 정렬한다(원본 races 배열은 건드리지 않음).
+  const sortedRaces = useMemo(() => {
+    if (!sortKey) return races;
+    const dir = sortDir === "asc" ? 1 : -1;
+    const copy = [...races];
+    copy.sort((r1, r2) => {
+      switch (sortKey) {
+        case "month":
+          return (r1.month - r2.month) * dir;
+        case "date":
+          return r1.startDate.localeCompare(r2.startDate) * dir;
+        case "category":
+          return r1.category.localeCompare(r2.category, "ko") * dir;
+        case "totalKm": {
+          const n1 = parseKmValue(r1.totalKmDisplay);
+          const n2 = parseKmValue(r2.totalKmDisplay);
+          if (n1 === null && n2 === null) return 0;
+          if (n1 === null) return 1; // 숫자로 안 떨어지는 값은 정렬 방향과 무관하게 항상 맨 뒤
+          if (n2 === null) return -1;
+          return (n1 - n2) * dir;
+        }
+        default:
+          return 0;
+      }
+    });
+    return copy;
+  }, [races, sortKey, sortDir]);
 
   let lastMonth: number | null = null;
 
@@ -369,18 +454,40 @@ export default function CompetitionsTable({
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="border-b border-line-strong text-left">
-              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">월</th>
-              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint whitespace-nowrap">날짜</th>
+              <SortHeader
+                label="월"
+                className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint"
+                active={sortKey === "month"}
+                dir={sortDir}
+                onClick={() => toggleSort("month")}
+              />
+              <SortHeader
+                label="날짜"
+                className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint whitespace-nowrap"
+                active={sortKey === "date"}
+                dir={sortDir}
+                onClick={() => toggleSort("date")}
+              />
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">대회명</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">세부종목</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">참가자</th>
-              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">분류</th>
+              <SortHeader
+                label="분류"
+                className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint"
+                active={sortKey === "category"}
+                dir={sortDir}
+                onClick={() => toggleSort("category")}
+              />
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
                 S/B/R
               </th>
-              <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
-                전체(km)
-              </th>
+              <SortHeader
+                label="전체(km)"
+                className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint/70 text-right whitespace-nowrap"
+                active={sortKey === "totalKm"}
+                dir={sortDir}
+                onClick={() => toggleSort("totalKm")}
+              />
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint/70 text-right whitespace-nowrap">
                 고도(m)
               </th>
@@ -389,7 +496,7 @@ export default function CompetitionsTable({
           </thead>
           <tbody>
             {adding && <RaceForm colSpan={COL_COUNT} action={createRaceAction} onDone={() => setAdding(false)} />}
-            {races.map((race) => {
+            {sortedRaces.map((race) => {
               const showMonth = race.month !== lastMonth;
               lastMonth = race.month;
 
