@@ -356,11 +356,16 @@ function SortHeader({
       <button
         type="button"
         onClick={onClick}
-        className={`inline-flex items-center gap-0.5 hover:text-accent ${active ? "text-accent" : ""}`}
+        title="클릭하면 정렬돼요"
+        className={`inline-flex items-center gap-1 rounded-sm px-1 -mx-1 py-0.5 hover:bg-accent-soft hover:text-accent ${
+          active ? "text-accent bg-accent-soft" : ""
+        }`}
       >
         {label}
-        <span className="text-[9px]" aria-hidden>
-          {active ? (dir === "asc" ? "▲" : "▼") : "⋮"}
+        {/* 위/아래 화살표를 늘 같이 보여줘서 "눌러서 정렬" 티가 나게 — 활성 방향만 진하게 강조 */}
+        <span className="inline-flex flex-col leading-[6px]" aria-hidden>
+          <span className={`text-[8px] ${active && dir === "asc" ? "text-accent" : "text-ink-faint/50"}`}>▲</span>
+          <span className={`text-[8px] ${active && dir === "desc" ? "text-accent" : "text-ink-faint/50"}`}>▼</span>
         </span>
       </button>
     </th>
