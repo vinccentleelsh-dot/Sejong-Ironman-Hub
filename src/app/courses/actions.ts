@@ -2,14 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
 import { logCourseAction } from "@/lib/course-audit";
 import type { CoursePayload } from "@/lib/course-shared";
 
-// 코스 아카이브 — 개인정보가 없는 공개 자료라 열람·등록은 인증 없이 누구나 가능하다
-// (2026.09 결정). 다만 수정·삭제는 실수/장난으로 남의 등록물이 망가질 수 있으니 운영진
-// (ADMIN) 인증이 있어야만 가능하게 잠근다. 실패는 절대 조용히 삼키지 않는다 — 여기서 던진
-// 에러를 호출부(클라이언트 컴포넌트)가 그대로 잡아서 사용자에게 눈에 보이는 배너로 알려야 한다.
+// 코스 아카이브 — 개인정보가 없는 공개 자료라 열람·등록·수정·삭제 전부 인증 없이 누구나
+// 가능하다 (2026.09 결정 → 운영진 전용으로 한 번 잠갔다가, "잘못 입력하는 경우가 종종
+// 있는데 감사로그로 복구되니까 오히려 다시 열어도 된다"는 판단으로 재개방). 실수로 지워지는
+// 것에 대한 안전망은 감사로그(CourseAuditLog) + 관리자 페이지 복구로 확보한다. 실패는 절대
+// 조용히 삼키지 않는다 — 여기서 던진 에러를 호출부(클라이언트 컴포넌트)가 그대로 잡아서
+// 사용자에게 눈에 보이는 배너로 알려야 한다.
 
 function validatePayload(payload: CoursePayload) {
   if (!payload.meta.name || !payload.meta.name.trim()) {
@@ -52,7 +53,6 @@ export async function createCourseAction(payload: CoursePayload): Promise<{ id: 
 }
 
 export async function updateCourseAction(id: string, payload: CoursePayload): Promise<void> {
-  await requireAdmin();
   validatePayload(payload);
 
   const updated = await prisma.course.update({
@@ -82,7 +82,6 @@ export async function updateCourseAction(id: string, payload: CoursePayload): Pr
 }
 
 export async function deleteCourseAction(id: string): Promise<void> {
-  await requireAdmin();
   const deleted = await prisma.course.delete({ where: { id } });
   await logCourseAction("DELETE", deleted);
   revalidatePath("/courses");

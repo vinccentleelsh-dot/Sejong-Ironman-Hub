@@ -30,15 +30,10 @@ export default function CourseGuideView({
   appState,
   mode,
   courseId,
-  canManage = false,
 }: {
   appState: CourseAppState;
   mode: "new" | "edit" | "detail";
   courseId: string | null;
-  // "정보·CP표 편집"/"삭제" 버튼 노출 여부 — 운영진(ADMIN)만 true. mode="detail"에서만
-  // 의미가 있다(new/edit은 페이지 단에서 이미 운영진만 들어올 수 있거나, new는 애초에
-  // 공개 기능이라 이 값과 무관하게 저장 버튼이 항상 뜬다).
-  canManage?: boolean;
 }) {
   const router = useRouter();
   const { track, cps, peaks, startDT, meta } = appState;
@@ -724,25 +719,21 @@ export default function CourseGuideView({
             >
               ⬇ GPX 다운로드
             </a>
-            {canManage && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => router.push(`/courses/${courseId}/edit`)}
-                  className="border border-line text-ink text-sm rounded-sm px-5 py-2.5 hover:bg-paper"
-                >
-                  ✏️ 정보·CP표 편집
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="border border-pending text-pending text-sm rounded-sm px-5 py-2.5 hover:bg-pending-soft disabled:opacity-50"
-                >
-                  {deleting ? "삭제 중…" : "🗑️ 이 가이드 삭제"}
-                </button>
-              </>
-            )}
+            <button
+              type="button"
+              onClick={() => router.push(`/courses/${courseId}/edit`)}
+              className="border border-line text-ink text-sm rounded-sm px-5 py-2.5 hover:bg-paper"
+            >
+              ✏️ 정보·CP표 편집
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="border border-pending text-pending text-sm rounded-sm px-5 py-2.5 hover:bg-pending-soft disabled:opacity-50"
+            >
+              {deleting ? "삭제 중…" : "🗑️ 이 가이드 삭제"}
+            </button>
           </>
         )}
         <button

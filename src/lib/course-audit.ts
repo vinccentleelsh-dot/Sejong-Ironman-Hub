@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/db";
 import { getRequestMeta } from "@/lib/auth";
 
-// 코스 아카이브는 등록은 공개, 수정·삭제는 운영진(ADMIN) 전용이지만(2026.09 결정), 그래도
-// 실수로 지워질 수 있으니 competitions-audit.ts와 동일한 원칙으로 모든 변경을 기록한다 —
-// 로컬 파일 스냅샷은 두지 않는다(Vercel에서 안 남는다는 걸 이미 확인했고, DB 감사로그가 더
-// 확실한 복구 수단이라 굳이 이중으로 안 함). "관리자 페이지"(superadmin)에서만 조회·복구 가능.
+// 코스 아카이브는 열람·등록·수정·삭제 전부 공개라(2026.09 재결정) 실수로 잘못 입력하거나
+// 지우는 일이 종종 생길 수 있다 — 그래서 competitions-audit.ts와 동일한 원칙으로 모든
+// 변경을 기록해서, 잠그는 대신 "복구 가능"으로 안전망을 대신한다. 로컬 파일 스냅샷은 두지
+// 않는다(Vercel에서 안 남는다는 걸 이미 확인했고, DB 감사로그가 더 확실한 복구 수단이라
+// 굳이 이중으로 안 함). "관리자 페이지"(superadmin)에서만 조회·복구 가능.
 
 export type CourseAction = "CREATE" | "UPDATE" | "DELETE";
 

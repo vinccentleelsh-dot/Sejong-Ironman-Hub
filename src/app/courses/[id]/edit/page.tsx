@@ -1,16 +1,14 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { isAdmin } from "@/lib/auth";
+import { notFound } from "next/navigation";
 import { getCourseDetail } from "@/lib/courses";
 import CourseForm from "../../CourseForm";
 
 export const dynamic = "force-dynamic";
 
-// 수정은 운영진(ADMIN) 전용 — 열람·등록은 공개지만, 남의 등록물을 실수/장난으로 망가뜨릴 수
-// 있는 수정·삭제만 잠근다(2026.09 결정).
+// 수정도 공개 — 잘못 입력해도 감사로그(CourseAuditLog)로 복구할 수 있어서 굳이 잠그지
+// 않기로 함(2026.09 재결정, 운영진 전용으로 한 번 잠갔다가 다시 풀었다).
 export default async function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!(await isAdmin())) redirect(`/admin/login?redirectTo=/courses/${id}/edit`);
 
   const detail = await getCourseDetail(id);
   if (!detail) notFound();

@@ -89,7 +89,7 @@ function KmRangeSlider({
   );
 }
 
-export default function CourseLibrary({ courses, canManage }: { courses: CourseCardRow[]; canManage: boolean }) {
+export default function CourseLibrary({ courses }: { courses: CourseCardRow[] }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [sportFilter, setSportFilter] = useState("all");
@@ -218,17 +218,15 @@ export default function CourseLibrary({ courses, canManage }: { courses: CourseC
                     <span className="text-[11px] font-bold uppercase tracking-wide text-accent bg-accent-soft rounded-sm px-1.5 py-0.5">
                       {sportLabel(c.sport)}
                     </span>
-                    {canManage && (
-                      <button
-                        type="button"
-                        disabled={deletingId === c.id}
-                        onClick={(e) => handleDelete(e, c)}
-                        title="삭제"
-                        className="text-ink-faint hover:text-pending text-sm px-1 disabled:opacity-50"
-                      >
-                        {deletingId === c.id ? "…" : "🗑️"}
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      disabled={deletingId === c.id}
+                      onClick={(e) => handleDelete(e, c)}
+                      title="삭제"
+                      className="text-ink-faint hover:text-pending text-sm px-1 disabled:opacity-50"
+                    >
+                      {deletingId === c.id ? "…" : "🗑️"}
+                    </button>
                   </div>
                   <h3 className="text-ink font-bold text-sm mb-1 leading-snug">{c.name}</h3>
                   <p className="text-ink-faint text-[11px] mb-2">
