@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { isSejongAuthed } from "@/lib/auth";
+import { isAdmin } from "@/lib/auth";
 import { getCourseDetail } from "@/lib/courses";
 import CourseForm from "../../CourseForm";
 
 export const dynamic = "force-dynamic";
 
+// 수정은 운영진(ADMIN) 전용 — 열람·등록은 공개지만, 남의 등록물을 실수/장난으로 망가뜨릴 수
+// 있는 수정·삭제만 잠근다(2026.09 결정).
 export default async function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!(await isSejongAuthed())) redirect(`/competitions/login?redirectTo=/courses/${id}/edit`);
+  if (!(await isAdmin())) redirect(`/admin/login?redirectTo=/courses/${id}/edit`);
 
   const detail = await getCourseDetail(id);
   if (!detail) notFound();

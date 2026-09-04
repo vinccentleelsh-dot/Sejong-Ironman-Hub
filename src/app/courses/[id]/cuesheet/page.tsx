@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { isSejongAuthed } from "@/lib/auth";
+import { notFound } from "next/navigation";
 import { getCourseDetail } from "@/lib/courses";
 import CueSheetView from "./CueSheetView";
 
 export const dynamic = "force-dynamic";
 
+// 큐시트도 코스 아카이브의 일부 — 개인정보가 없는 공개 자료라 인증 없이 누구나 볼 수 있다.
 export default async function CourseCueSheetPage({
   params,
   searchParams,
@@ -14,7 +14,6 @@ export default async function CourseCueSheetPage({
   searchParams: Promise<{ goal?: string }>;
 }) {
   const { id } = await params;
-  if (!(await isSejongAuthed())) redirect(`/competitions/login?redirectTo=/courses/${id}/cuesheet`);
 
   const detail = await getCourseDetail(id);
   if (!detail) notFound();

@@ -1,13 +1,10 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { isSejongAuthed } from "@/lib/auth";
 import CourseForm from "../CourseForm";
 
 export const dynamic = "force-dynamic";
 
+// 코스 등록은 공개 기능 — 개인정보가 없는 공개 자료라 누구나 GPX를 올려 추가할 수 있다.
 export default async function NewCoursePage() {
-  if (!(await isSejongAuthed())) redirect("/competitions/login?redirectTo=/courses/new");
-
   return (
     <div className="min-h-screen">
       <div className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-5">

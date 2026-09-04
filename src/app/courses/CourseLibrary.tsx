@@ -89,7 +89,7 @@ function KmRangeSlider({
   );
 }
 
-export default function CourseLibrary({ courses, canEdit }: { courses: CourseCardRow[]; canEdit: boolean }) {
+export default function CourseLibrary({ courses, canManage }: { courses: CourseCardRow[]; canManage: boolean }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [sportFilter, setSportFilter] = useState("all");
@@ -188,7 +188,7 @@ export default function CourseLibrary({ courses, canEdit }: { courses: CourseCar
           <b className="block text-ink text-base mb-1.5">아직 쌓인 코스 가이드가 없어요</b>
           GPX 파일 하나로 지도·고도표·목표시간 계산까지 자동으로 만들어 드려요.
           <br />
-          {canEdit ? "위의 ＋ 새 가이드를 눌러 첫 코스를 추가해보세요." : "세종철인 인증 후 새 가이드를 추가할 수 있어요."}
+          위의 ＋ 새 가이드를 눌러 첫 코스를 추가해보세요.
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-paper-raised border border-line rounded-sm px-5 py-8 text-center text-ink-faint text-sm">
@@ -218,7 +218,7 @@ export default function CourseLibrary({ courses, canEdit }: { courses: CourseCar
                     <span className="text-[11px] font-bold uppercase tracking-wide text-accent bg-accent-soft rounded-sm px-1.5 py-0.5">
                       {sportLabel(c.sport)}
                     </span>
-                    {canEdit && (
+                    {canManage && (
                       <button
                         type="button"
                         disabled={deletingId === c.id}

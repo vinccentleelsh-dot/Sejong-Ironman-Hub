@@ -1,15 +1,14 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { isSejongAuthed } from "@/lib/auth";
+import { isAdmin } from "@/lib/auth";
 import { getCourseCards } from "@/lib/courses";
 import CourseLibrary from "./CourseLibrary";
 
 export const dynamic = "force-dynamic";
 
+// 코스 아카이브는 개인정보가 없는 공개 자료라 열람·등록에는 인증이 필요 없다(2026.09 결정).
+// 수정·삭제만 운영진(ADMIN) 전용 — CourseLibrary에 canManage로 내려줘서 삭제 버튼 노출 여부를 정한다.
 export default async function CoursesLibraryPage() {
-  const authed = await isSejongAuthed();
-  if (!authed) redirect("/competitions/login?redirectTo=/courses");
-
+  const canManage = await isAdmin();
   const courses = await getCourseCards();
 
   return (
@@ -38,7 +37,7 @@ export default async function CoursesLibraryPage() {
           </div>
         </header>
 
-        <CourseLibrary courses={courses} canEdit={authed} />
+        <CourseLibrary courses={courses} canManage={canManage} />
       </div>
     </div>
   );

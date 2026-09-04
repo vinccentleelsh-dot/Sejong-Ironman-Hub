@@ -2,13 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireSejongAuth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { logCourseAction } from "@/lib/course-audit";
 import type { CoursePayload } from "@/lib/course-shared";
 
-// 코스 아카이브 — "세종철인 인증" 하나로 전 회원이 등록·수정·삭제 가능 (/competitions와 동일
-// 원칙: 이 앱엔 개인별 로그인이 없음). 실패는 절대 조용히 삼키지 않는다 — 여기서 던진 에러를
-// 호출부(클라이언트 컴포넌트)가 그대로 잡아서 사용자에게 눈에 보이는 배너로 알려야 한다.
+// 코스 아카이브 — 개인정보가 없는 공개 자료라 열람·등록은 인증 없이 누구나 가능하다
+// (2026.09 결정). 다만 수정·삭제는 실수/장난으로 남의 등록물이 망가질 수 있으니 운영진
+// (ADMIN) 인증이 있어야만 가능하게 잠근다. 실패는 절대 조용히 삼키지 않는다 — 여기서 던진
+// 에러를 호출부(클라이언트 컴포넌트)가 그대로 잡아서 사용자에게 눈에 보이는 배너로 알려야 한다.
 
 function validatePayload(payload: CoursePayload) {
   if (!payload.meta.name || !payload.meta.name.trim()) {
@@ -23,7 +24,7 @@ function validatePayload(payload: CoursePayload) {
 }
 
 export async function createCourseAction(payload: CoursePayload): Promise<{ id: string }> {
-  await requireSejongAuth();
+  // 등록은 공개 기능 — 누구나 GPX를 올려서 코스 가이드를 추가할 수 있다.
   validatePayload(payload);
 
   const created = await prisma.course.create({
@@ -51,7 +52,7 @@ export async function createCourseAction(payload: CoursePayload): Promise<{ id: 
 }
 
 export async function updateCourseAction(id: string, payload: CoursePayload): Promise<void> {
-  await requireSejongAuth();
+  await requireAdmin();
   validatePayload(payload);
 
   const updated = await prisma.course.update({
@@ -81,7 +82,7 @@ export async function updateCourseAction(id: string, payload: CoursePayload): Pr
 }
 
 export async function deleteCourseAction(id: string): Promise<void> {
-  await requireSejongAuth();
+  await requireAdmin();
   const deleted = await prisma.course.delete({ where: { id } });
   await logCourseAction("DELETE", deleted);
   revalidatePath("/courses");
