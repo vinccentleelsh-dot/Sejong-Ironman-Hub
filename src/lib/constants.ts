@@ -33,3 +33,11 @@ export function formatDisciplines(disciplines: string | null) {
   if (list.length === 0) return "—";
   return `${list.length}종(${list.map(disciplineLabel).join(",")})`;
 }
+
+// 참석자 기본 포인트 — 정기훈련/공식행사/자율훈련은 3점 균일, 대회는 완주 코스마다 점수가
+// 제각각이라(올림픽 20/하프 30/풀 50 등) 자동으로 정할 수 없으므로 0으로 두고 운영자가
+// 개별 입력한다. SessionsTable(수동 참석 체크)과 훈련계획 엑셀 업로드(자동 참석자 반영)가
+// 이 기준을 공유한다.
+export function defaultAttendancePoints(category: SessionCategory) {
+  return category === "COMPETITION" ? 0 : 3;
+}

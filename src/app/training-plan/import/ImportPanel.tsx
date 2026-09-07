@@ -12,7 +12,12 @@ export default function ImportPanel() {
   const [pastedText, setPastedText] = useState("");
   const [rows, setRows] = useState<ParsedRow[] | null>(null);
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ created: number; updated: number } | null>(null);
+  const [result, setResult] = useState<{
+    created: number;
+    updated: number;
+    attendanceCreated: number;
+    unmatchedNames: string[];
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const validRows = rows?.filter((r) => r.errors.length === 0) ?? [];
@@ -93,6 +98,7 @@ export default function ImportPanel() {
                 <td className="border border-line px-2 py-1">2</td>
                 <td className="border border-line px-2 py-1">0</td>
                 <td className="border border-line px-2 py-1">5</td>
+                <td className="border border-line px-2 py-1">김철수, 이영희</td>
               </tr>
             </tbody>
           </table>
@@ -100,7 +106,10 @@ export default function ImportPanel() {
         <p className="text-xs text-ink-faint mt-2">
           분류는 <b className="text-ink-soft">{Object.keys(CATEGORY_LABEL_TO_ENUM).join(" / ")}</b> 중 하나여야
           합니다. 첫 줄이 헤더면 자동으로 건너뜁니다. 같은 날짜 + 같은 분류의 세션이 이미 있으면 값을
-          덮어쓰고, 없으면 새로 만듭니다.
+          덮어쓰고, 없으면 새로 만듭니다. <b className="text-ink-soft">참석자</b>는 기존 회원 이름과 정확히
+          일치해야 자동으로 연결되고(기본 포인트: 정기훈련·공식행사·자율훈련 3점 / 대회 0점 — 대회는
+          완주 코스마다 달라 가져오기 후 개별 입력 필요), 이미 참석 기록이 있는 사람은 건드리지 않습니다.
+          이름이 회원 명단과 안 맞으면 가져오기 후 결과에 표시됩니다.
         </p>
       </div>
 
@@ -162,9 +171,18 @@ export default function ImportPanel() {
       )}
 
       {result && (
-        <p className="text-sm text-good bg-good-soft border border-good/30 rounded-sm px-3 py-2">
-          가져오기 완료 — 신규 {result.created}건, 업데이트 {result.updated}건
-        </p>
+        <div className="text-sm text-good bg-good-soft border border-good/30 rounded-sm px-3 py-2">
+          <p>
+            가져오기 완료 — 세션 신규 {result.created}건, 업데이트 {result.updated}건 · 참석자 신규 연결{" "}
+            {result.attendanceCreated}명
+          </p>
+          {result.unmatchedNames.length > 0 && (
+            <p className="text-pending mt-1">
+              회원 명단과 매칭 안 된 이름 ({result.unmatchedNames.length}명) — 오탈자이거나 아직 등록 안 된
+              회원입니다: {result.unmatchedNames.join(", ")}
+            </p>
+          )}
+        </div>
       )}
 
       {rows && rows.length > 0 && (
@@ -190,6 +208,7 @@ export default function ImportPanel() {
                   <th className="border border-line px-2 py-1 text-left">분류</th>
                   <th className="border border-line px-2 py-1 text-left">종목</th>
                   <th className="border border-line px-2 py-1 text-left">거리(S/B/R)</th>
+                  <th className="border border-line px-2 py-1 text-left">참석자</th>
                   <th className="border border-line px-2 py-1 text-left">상태</th>
                 </tr>
               </thead>
@@ -202,6 +221,9 @@ export default function ImportPanel() {
                     <td className="border border-line px-2 py-1">{r.disciplines ?? "—"}</td>
                     <td className="border border-line px-2 py-1 font-mono-brand [font-variant-numeric:tabular-nums]">
                       {r.swimKm}/{r.bikeKm}/{r.runKm}
+                    </td>
+                    <td className="border border-line px-2 py-1 max-w-[220px] truncate" title={r.participantNames.join(", ")}>
+                      {r.participantNames.length > 0 ? `${r.participantNames.length}명 — ${r.participantNames.join(", ")}` : "—"}
                     </td>
                     <td className="border border-line px-2 py-1">
                       {r.errors.length > 0 ? (

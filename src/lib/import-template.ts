@@ -13,6 +13,7 @@ export const IMPORT_COLUMNS = [
   "Swim(km)",
   "Bike(km)",
   "Run(km)",
+  "참석자(이름,이름,...)",
 ] as const;
 
 export const CATEGORY_LABEL_TO_ENUM: Record<string, SessionCategory> = {
@@ -41,6 +42,7 @@ export type ParsedRow = {
   swimKm: number;
   bikeKm: number;
   runKm: number;
+  participantNames: string[]; // 이름으로 회원 매칭은 커밋 시점(서버)에서 처리
   errors: string[];
 };
 
@@ -83,6 +85,15 @@ export function parseDisciplines(raw: string | undefined): string | null {
   return parts.length > 0 ? Array.from(new Set(parts)).join(",") : null;
 }
 
+export function parseParticipantNames(raw: string | undefined): string[] {
+  const s = (raw ?? "").trim();
+  if (!s) return [];
+  return s
+    .split(",")
+    .map((n) => n.trim())
+    .filter(Boolean);
+}
+
 export function parseRow(cells: string[], rowIndex: number): ParsedRow {
   const errors: string[] = [];
 
@@ -104,6 +115,7 @@ export function parseRow(cells: string[], rowIndex: number): ParsedRow {
     swimKm: num(cells[5]),
     bikeKm: num(cells[6]),
     runKm: num(cells[7]),
+    participantNames: parseParticipantNames(cells[8]),
     errors,
   };
 }

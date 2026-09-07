@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { updateSessionAction, createSessionAction, deleteSessionAction } from "./actions";
-import { CATEGORY_OPTIONS, CATEGORY_LABELS, DISCIPLINE_OPTIONS, formatDisciplines } from "@/lib/constants";
+import { CATEGORY_OPTIONS, CATEGORY_LABELS, DISCIPLINE_OPTIONS, formatDisciplines, defaultAttendancePoints } from "@/lib/constants";
 import type { SessionCategory } from "@/generated/prisma/client";
 
 export type Attendee = { memberId: string; name: string; points: number };
@@ -53,9 +53,8 @@ function CategoryBadge({ category }: { category: SessionCategory }) {
 }
 
 // 기본 공통 포인트 — 정기훈련/공식행사/자율훈련은 3점, 대회는 종목마다 달라서 운영자가 직접 입력
-function defaultPoints(category: SessionCategory) {
-  return category === "COMPETITION" ? 0 : 3;
-}
+// (@/lib/constants의 defaultAttendancePoints와 동일 기준 — 훈련계획 엑셀 업로드도 같은 걸 씀)
+const defaultPoints = defaultAttendancePoints;
 
 // 참석자 체크 + 사람별 포인트 — 훈련은 보통 3점 균일하지만 그날 자원봉사(자봉) 담당은 5점,
 // 대회는 사람마다 완주한 코스가 달라 점수가 제각각(올림픽 20/하프 30/킹 50)이라 사람별로
