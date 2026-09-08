@@ -2,14 +2,25 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isSejongAuthed } from "@/lib/auth";
 import { getRaceParticipationLeaderboard } from "@/lib/dashboard-competitions";
+import { listAvailableCompetitionYears } from "@/lib/competitions";
 import { nowKst } from "@/lib/now";
 
 export const dynamic = "force-dynamic";
 
-export default async function RaceParticipationPage() {
+export default async function RaceParticipationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ year?: string }>;
+}) {
   if (!(await isSejongAuthed())) redirect("/competitions/login?redirectTo=/members/race-participation");
 
-  const year = nowKst().getUTCFullYear();
+  const years = await listAvailableCompetitionYears();
+  const currentYear = nowKst().getUTCFullYear();
+  const params = await searchParams;
+  const requestedYear = params.year ? Number(params.year) : null;
+  const year =
+    requestedYear && years.includes(requestedYear) ? requestedYear : years.includes(currentYear) ? currentYear : (years[0] ?? currentYear);
+
   const ranking = await getRaceParticipationLeaderboard(year);
 
   return (
@@ -23,12 +34,28 @@ export default async function RaceParticipationPage() {
               </Link>
             </p>
             <h1 className="font-display text-2xl text-ink">{year}년 대회 참가횟수</h1>
-            <p className="text-sm text-ink-soft mt-1">올해 참가자 명단에 이름이 매칭된 회원 전원, 참가횟수 순입니다.</p>
+            <p className="text-sm text-ink-soft mt-1">{year}년 참가자 명단에 이름이 매칭된 회원 전원, 참가횟수 순입니다.</p>
           </div>
           <Link href="/" className="text-sm font-medium text-accent hover:underline">
             ← 대시보드
           </Link>
         </header>
+
+        {years.length > 1 && (
+          <div className="flex gap-2">
+            {years.map((y) => (
+              <Link
+                key={y}
+                href={`/members/race-participation?year=${y}`}
+                className={`text-sm font-medium px-3 py-1.5 rounded-sm border ${
+                  y === year ? "bg-accent text-accent-ink border-accent" : "border-line text-ink-soft hover:bg-paper-raised"
+                }`}
+              >
+                {y}년
+              </Link>
+            ))}
+          </div>
+        )}
 
         <div className="bg-paper-raised border border-line rounded-sm shadow-[0_1px_2px_rgba(20,34,32,.06),0_8px_24px_-12px_rgba(20,34,32,.12)] p-4">
           {ranking.length === 0 ? (

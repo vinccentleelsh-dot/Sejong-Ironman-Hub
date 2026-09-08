@@ -2,14 +2,25 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isSejongAuthed } from "@/lib/auth";
 import { getMemberRanking } from "@/lib/member-profile";
+import { listAvailableYears } from "@/lib/archive";
 import { nowKst } from "@/lib/now";
 
 export const dynamic = "force-dynamic";
 
-export default async function MembersRankingPage() {
+export default async function MembersRankingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ year?: string }>;
+}) {
   if (!(await isSejongAuthed())) redirect("/competitions/login?redirectTo=/members");
 
-  const year = nowKst().getUTCFullYear();
+  const years = await listAvailableYears();
+  const currentYear = nowKst().getUTCFullYear();
+  const params = await searchParams;
+  const requestedYear = params.year ? Number(params.year) : null;
+  const year =
+    requestedYear && years.includes(requestedYear) ? requestedYear : years.includes(currentYear) ? currentYear : (years[0] ?? currentYear);
+
   const ranking = await getMemberRanking(year);
   const active = ranking.filter((r) => r.isActive);
   const inactive = ranking.filter((r) => !r.isActive);
@@ -31,6 +42,22 @@ export default async function MembersRankingPage() {
             ← 대시보드
           </Link>
         </header>
+
+        {years.length > 1 && (
+          <div className="flex gap-2">
+            {years.map((y) => (
+              <Link
+                key={y}
+                href={`/members?year=${y}`}
+                className={`text-sm font-medium px-3 py-1.5 rounded-sm border ${
+                  y === year ? "bg-accent text-accent-ink border-accent" : "border-line text-ink-soft hover:bg-paper-raised"
+                }`}
+              >
+                {y}년
+              </Link>
+            ))}
+          </div>
+        )}
 
         <div className="bg-paper-raised border border-line rounded-sm shadow-[0_1px_2px_rgba(20,34,32,.06),0_8px_24px_-12px_rgba(20,34,32,.12)] p-4">
           <table className="w-full text-sm">

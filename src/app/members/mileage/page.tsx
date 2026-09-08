@@ -2,14 +2,25 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isSejongAuthed } from "@/lib/auth";
 import { getMileageLeaderboard } from "@/lib/dashboard-competitions";
+import { listAvailableCompetitionYears } from "@/lib/competitions";
 import { nowKst } from "@/lib/now";
 
 export const dynamic = "force-dynamic";
 
-export default async function MileagePage() {
+export default async function MileagePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ year?: string }>;
+}) {
   if (!(await isSejongAuthed())) redirect("/competitions/login?redirectTo=/members/mileage");
 
-  const year = nowKst().getUTCFullYear();
+  const years = await listAvailableCompetitionYears();
+  const currentYear = nowKst().getUTCFullYear();
+  const params = await searchParams;
+  const requestedYear = params.year ? Number(params.year) : null;
+  const year =
+    requestedYear && years.includes(requestedYear) ? requestedYear : years.includes(currentYear) ? currentYear : (years[0] ?? currentYear);
+
   const ranking = await getMileageLeaderboard(year);
 
   return (
@@ -32,6 +43,22 @@ export default async function MileagePage() {
             ← 대시보드
           </Link>
         </header>
+
+        {years.length > 1 && (
+          <div className="flex gap-2">
+            {years.map((y) => (
+              <Link
+                key={y}
+                href={`/members/mileage?year=${y}`}
+                className={`text-sm font-medium px-3 py-1.5 rounded-sm border ${
+                  y === year ? "bg-accent text-accent-ink border-accent" : "border-line text-ink-soft hover:bg-paper-raised"
+                }`}
+              >
+                {y}년
+              </Link>
+            ))}
+          </div>
+        )}
 
         <div className="bg-paper-raised border border-line rounded-sm shadow-[0_1px_2px_rgba(20,34,32,.06),0_8px_24px_-12px_rgba(20,34,32,.12)] p-4">
           {ranking.length === 0 ? (
