@@ -3,12 +3,17 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { isAdmin, isSejongAuthed } from "@/lib/auth";
 import { logoutAction } from "@/app/admin/actions";
+import { nowKst } from "@/lib/now";
 import SessionsTable from "./SessionsTable";
 import MemberManagement from "./MemberManagement";
 
 export const dynamic = "force-dynamic";
 
-export default async function TrainingPlanPage() {
+export default async function TrainingPlanPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ year?: string }>;
+}) {
   // 열람 자체를 세종철인 인증으로 막는다 (개인정보 보호 — 2026.09 결정). 수정 권한은
   // 별개로 운영자 인증(isAdmin)이 여전히 필요 — 두 인증은 독립적.
   if (!(await isSejongAuthed())) redirect("/competitions/login?redirectTo=/training-plan");
@@ -26,7 +31,18 @@ export default async function TrainingPlanPage() {
     }),
   ]);
 
-  const sessionRows = sessions.map((s) => ({
+  // 연도 탭 — 2025년 훈련계획을 업로드하면서 한 테이블에 다 섞여 보이던 문제를 해결 (2026.09
+  // 결정). 존재하는 연도만 탭으로 보여주고, 기본값은 "올해"(없으면 있는 연도 중 최신)로 고정
+  // — 예전에 "2026년 훈련계획" 하나만 있던 화면 그대로를 기본으로 유지하기 위함.
+  const years = Array.from(new Set(sessions.map((s) => s.date.getUTCFullYear()))).sort((a, b) => b - a);
+  const currentYear = nowKst().getUTCFullYear();
+  const params = await searchParams;
+  const requestedYear = params.year ? Number(params.year) : null;
+  const selectedYear = requestedYear && years.includes(requestedYear) ? requestedYear : years.includes(currentYear) ? currentYear : (years[0] ?? currentYear);
+
+  const sessionRows = sessions
+    .filter((s) => s.date.getUTCFullYear() === selectedYear)
+    .map((s) => ({
     id: s.id,
     date: s.date.toISOString().slice(0, 10),
     category: s.category,
@@ -58,8 +74,7 @@ export default async function TrainingPlanPage() {
                 세종철인 훈련허브
               </Link>
             </p>
-            {/* TODO: 2025년 데이터가 들어오면 연도 선택/탭을 추가하고 이 제목도 동적으로 바꿀 것 */}
-            <h1 className="font-display text-2xl text-ink">2026년 훈련계획</h1>
+            <h1 className="font-display text-2xl text-ink">{selectedYear}년 훈련계획</h1>
             <p className="text-sm text-ink-soft mt-1">
               {admin ? "운영자 모드 — 세션 수정/추가, 회원 관리가 가능합니다." : "읽기 전용 — 운영자만 수정할 수 있습니다."}
             </p>
@@ -100,6 +115,24 @@ export default async function TrainingPlanPage() {
             </Link>
           )}
         </header>
+
+        {years.length > 1 && (
+          <div className="flex gap-2">
+            {years.map((y) => (
+              <Link
+                key={y}
+                href={`/training-plan?year=${y}`}
+                className={`text-sm font-medium px-3 py-1.5 rounded-sm border ${
+                  y === selectedYear
+                    ? "bg-accent text-accent-ink border-accent"
+                    : "border-line text-ink-soft hover:bg-paper-raised"
+                }`}
+              >
+                {y}년
+              </Link>
+            ))}
+          </div>
+        )}
 
         <SessionsTable sessions={sessionRows} members={memberRows} isAdmin={admin} />
         <MemberManagement members={memberRows} isAdmin={admin} />
