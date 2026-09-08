@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
-import type { SessionCategory } from "@/generated/prisma/client";
+import { MEMBERSHIP_STATUS_LABELS } from "@/lib/constants";
+import type { SessionCategory, MembershipStatus } from "@/generated/prisma/client";
 
 function num(formData: FormData, key: string): number {
   const raw = formData.get(key);
@@ -109,18 +110,35 @@ export async function addMemberAction(formData: FormData) {
   const name = str(formData, "name");
   if (!name) throw new Error("이름을 입력해주세요.");
 
-  await prisma.member.create({ data: { name, isActive: true, joinedAt: new Date() } });
+  const statusRaw = String(formData.get("membershipStatus") ?? "REGULAR");
+  const membershipStatus = (
+    statusRaw in MEMBERSHIP_STATUS_LABELS ? statusRaw : "REGULAR"
+  ) as MembershipStatus;
+
+  await prisma.member.create({
+    data: {
+      name,
+      membershipStatus,
+      isActive: membershipStatus !== "WITHDRAWN",
+      joinedAt: new Date(),
+    },
+  });
   revalidatePath("/training-plan");
 }
 
-export async function setMemberActiveAction(formData: FormData) {
+// 정회원/훈련회원/신입회원/탈퇴회원 — isActive는 WITHDRAWN 여부와 항상 동기화해서, 이 필드로
+// 필터링하는 기존 화면(대회 참가자 선택, 회원 랭킹 등)이 그대로 맞게 동작하도록 유지한다.
+export async function setMembershipStatusAction(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id"));
-  const isActive = String(formData.get("isActive")) === "true";
+  const statusRaw = String(formData.get("membershipStatus"));
+  if (!(statusRaw in MEMBERSHIP_STATUS_LABELS)) throw new Error("알 수 없는 회원 상태입니다.");
+  const membershipStatus = statusRaw as MembershipStatus;
+  const isActive = membershipStatus !== "WITHDRAWN";
 
   await prisma.member.update({
     where: { id },
-    data: { isActive, leftAt: isActive ? null : new Date() },
+    data: { membershipStatus, isActive, leftAt: isActive ? null : new Date() },
   });
   revalidatePath("/training-plan");
 }

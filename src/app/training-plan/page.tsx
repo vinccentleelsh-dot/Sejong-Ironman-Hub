@@ -61,6 +61,7 @@ export default async function TrainingPlanPage({
     id: m.id,
     name: m.name,
     isActive: m.isActive,
+    membershipStatus: m.membershipStatus,
     totalPoints: m.attendances.reduce((sum, a) => sum + a.points, 0),
   }));
 

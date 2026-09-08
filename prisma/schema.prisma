@@ -49,13 +49,25 @@ enum SessionCategory {
 }
 
 // 회원 (엑셀 Sheet1 "세철포인트"의 행 = 회원 1명)
+// 정회원/훈련회원/신입회원/탈퇴회원 — 2026.09 결정: 그동안 활성/탈퇴 이진값만 있어서
+// "2025년엔 있었는데 지금은 아닌" 사람을 세밀하게 표현 못 했음. isActive는 하위 호환용으로
+// 계속 유지하고(membershipStatus와 항상 동기화 — WITHDRAWN이면 false, 나머지는 true),
+// 회원 필터링이 걸린 기존 코드(대회 참가자 선택, 회원 랭킹 등)는 그대로 isActive를 쓴다.
+enum MembershipStatus {
+  REGULAR // 정회원
+  TRAINING // 훈련회원
+  NEW // 신입회원
+  WITHDRAWN // 탈퇴회원
+}
+
 model Member {
   id   String @id @default(cuid())
   name String
 
-  isActive Boolean   @default(true) // 탈퇴 시 false — 과거 기록은 유지, 명단에서만 비활성 처리
-  joinedAt DateTime?
-  leftAt   DateTime?
+  membershipStatus MembershipStatus @default(REGULAR)
+  isActive         Boolean          @default(true) // 탈퇴 시 false — 과거 기록은 유지, 명단에서만 비활성 처리 (membershipStatus와 동기화)
+  joinedAt         DateTime?
+  leftAt           DateTime?
 
   attendances AttendanceRecord[]
 

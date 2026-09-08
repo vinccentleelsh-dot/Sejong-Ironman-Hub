@@ -1,4 +1,17 @@
-import type { SessionCategory } from "@/generated/prisma/client";
+import type { SessionCategory, MembershipStatus } from "@/generated/prisma/client";
+
+// 정회원/훈련회원/신입회원/탈퇴회원 (2026.09 결정 — 연도별로 정회원 명단이 달라지는 걸
+// 표현하기 위해 활성/탈퇴 이진값에서 세분화). WITHDRAWN만 isActive=false와 동기화된다.
+export const MEMBERSHIP_STATUS_LABELS: Record<MembershipStatus, string> = {
+  REGULAR: "정회원",
+  TRAINING: "훈련회원",
+  NEW: "신입회원",
+  WITHDRAWN: "탈퇴회원",
+};
+
+export const MEMBERSHIP_STATUS_OPTIONS = Object.entries(MEMBERSHIP_STATUS_LABELS) as Array<
+  [MembershipStatus, string]
+>;
 
 export const CATEGORY_LABELS: Record<SessionCategory, string> = {
   REGULAR: "정기훈련",

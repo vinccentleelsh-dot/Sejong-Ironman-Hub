@@ -1,25 +1,99 @@
 "use client";
 
 import { useState } from "react";
-import { addMemberAction, setMemberActiveAction } from "./actions";
+import { addMemberAction, setMembershipStatusAction } from "./actions";
+import { MEMBERSHIP_STATUS_LABELS, MEMBERSHIP_STATUS_OPTIONS } from "@/lib/constants";
+import type { MembershipStatus } from "@/generated/prisma/client";
 
 export type MemberRow = {
   id: string;
   name: string;
   isActive: boolean;
+  membershipStatus: MembershipStatus;
   totalPoints: number;
 };
 
+const GROUP_ORDER: MembershipStatus[] = ["REGULAR", "TRAINING", "NEW", "WITHDRAWN"];
+
+function StatusSelect({ memberId, current, isAdmin }: { memberId: string; current: MembershipStatus; isAdmin: boolean }) {
+  if (!isAdmin) return <span className="text-xs text-ink-faint">{MEMBERSHIP_STATUS_LABELS[current]}</span>;
+  return (
+    <form action={setMembershipStatusAction}>
+      <input type="hidden" name="id" value={memberId} />
+      <select
+        name="membershipStatus"
+        defaultValue={current}
+        onChange={(e) => e.currentTarget.form?.requestSubmit()}
+        className="text-xs border border-line rounded-sm px-1.5 py-0.5 bg-paper-raised text-ink-soft"
+      >
+        {MEMBERSHIP_STATUS_OPTIONS.map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+    </form>
+  );
+}
+
+function MemberGroup({
+  status,
+  members,
+  isAdmin,
+  defaultOpen,
+}: {
+  status: MembershipStatus;
+  members: MemberRow[];
+  isAdmin: boolean;
+  defaultOpen: boolean;
+}) {
+  if (members.length === 0) return null;
+  const list = (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5">
+      {members.map((m) => (
+        <div key={m.id} className="flex items-center justify-between gap-2 text-sm py-0.5">
+          <span className="text-ink truncate">{m.name}</span>
+          <StatusSelect memberId={m.id} current={m.membershipStatus} isAdmin={isAdmin} />
+        </div>
+      ))}
+    </div>
+  );
+
+  const heading = `${MEMBERSHIP_STATUS_LABELS[status]} ${members.length}명`;
+
+  if (defaultOpen) {
+    return (
+      <div>
+        <p className="text-xs font-medium text-ink-soft mb-2">{heading}</p>
+        {list}
+      </div>
+    );
+  }
+
+  return (
+    <details>
+      <summary className="text-xs font-medium text-ink-soft cursor-pointer mb-2">{heading}</summary>
+      {list}
+    </details>
+  );
+}
+
 export default function MemberManagement({ members, isAdmin }: { members: MemberRow[]; isAdmin: boolean }) {
   const [adding, setAdding] = useState(false);
-  const active = members.filter((m) => m.isActive);
-  const inactive = members.filter((m) => !m.isActive);
+  const grouped = GROUP_ORDER.map((status) => ({
+    status,
+    members: members.filter((m) => m.membershipStatus === status),
+  }));
 
   return (
     <div className="bg-paper-raised border border-line rounded-sm shadow-[0_1px_2px_rgba(20,34,32,.06),0_8px_24px_-12px_rgba(20,34,32,.12)] p-4">
       <div className="flex items-center justify-between mb-3">
         <p className="font-mono-brand text-[10.5px] tracking-wide uppercase text-accent">
-          회원 관리 · 활성 {active.length}명 {inactive.length > 0 && `· 탈퇴 ${inactive.length}명`}
+          회원 관리 ·{" "}
+          {grouped
+            .filter((g) => g.members.length > 0)
+            .map((g) => `${MEMBERSHIP_STATUS_LABELS[g.status]} ${g.members.length}명`)
+            .join(" · ")}
         </p>
         {isAdmin && !adding && (
           <button
@@ -46,6 +120,17 @@ export default function MemberManagement({ members, isAdmin }: { members: Member
             autoFocus
             className="border border-line rounded-sm px-2 py-1.5 bg-paper-raised text-sm flex-1"
           />
+          <select
+            name="membershipStatus"
+            defaultValue="REGULAR"
+            className="text-sm border border-line rounded-sm px-2 py-1.5 bg-paper-raised text-ink-soft"
+          >
+            {MEMBERSHIP_STATUS_OPTIONS.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
           <button type="submit" className="bg-good text-white text-sm font-medium rounded-sm px-3 py-1.5">
             추가
           </button>
@@ -55,44 +140,17 @@ export default function MemberManagement({ members, isAdmin }: { members: Member
         </form>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5">
-        {active.map((m) => (
-          <div key={m.id} className="flex items-center justify-between text-sm py-0.5">
-            <span className="text-ink">{m.name}</span>
-            {isAdmin && (
-              <form action={setMemberActiveAction}>
-                <input type="hidden" name="id" value={m.id} />
-                <input type="hidden" name="isActive" value="false" />
-                <button type="submit" className="text-xs text-ink-faint hover:text-pending hover:underline">
-                  탈퇴처리
-                </button>
-              </form>
-            )}
-          </div>
+      <div className="flex flex-col gap-4">
+        {grouped.map((g) => (
+          <MemberGroup
+            key={g.status}
+            status={g.status}
+            members={g.members}
+            isAdmin={isAdmin}
+            defaultOpen={g.status === "REGULAR"}
+          />
         ))}
       </div>
-
-      {inactive.length > 0 && (
-        <details className="mt-4">
-          <summary className="text-xs text-ink-faint cursor-pointer">탈퇴 회원 {inactive.length}명 보기</summary>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 mt-2">
-            {inactive.map((m) => (
-              <div key={m.id} className="flex items-center justify-between text-sm py-0.5 text-ink-faint">
-                <span>{m.name}</span>
-                {isAdmin && (
-                  <form action={setMemberActiveAction}>
-                    <input type="hidden" name="id" value={m.id} />
-                    <input type="hidden" name="isActive" value="true" />
-                    <button type="submit" className="text-xs text-accent hover:underline">
-                      복귀처리
-                    </button>
-                  </form>
-                )}
-              </div>
-            ))}
-          </div>
-        </details>
-      )}
     </div>
   );
 }
