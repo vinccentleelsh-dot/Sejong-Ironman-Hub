@@ -95,6 +95,12 @@ export default async function TrainingPlanPage({
                 데이터 백업
               </Link>
               <Link
+                href="/admin/monthly-report"
+                className="text-sm font-medium text-accent border border-accent/40 rounded-sm px-3 py-1.5 hover:bg-accent-soft"
+              >
+                📰 월간 리포트
+              </Link>
+              <Link
                 href="/admin/settings"
                 className="text-sm font-medium text-accent border border-accent/40 rounded-sm px-3 py-1.5 hover:bg-accent-soft"
               >

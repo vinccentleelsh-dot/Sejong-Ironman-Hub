@@ -167,7 +167,9 @@ body {
    인쇄 시에도 그대로 나오게 강제한다(브라우저 기본값은 잉크 절약을 위해 배경색을 인쇄에서
    빼버림). @page 여백도 살짝 좁혀서 표가 한 장에 더 들어가게 한다. */
 .cuesheet-print,
-.cuesheet-print * {
+.cuesheet-print *,
+.report-print,
+.report-print * {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }

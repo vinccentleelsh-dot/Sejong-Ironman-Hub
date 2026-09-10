@@ -5,6 +5,7 @@ import { getCompetitionRaces } from "@/lib/competitions";
 import { RACE_CATEGORY_COLOR, formatTotalKm } from "@/lib/competitions-shared";
 import { nowKst } from "@/lib/now";
 import { isSejongAuthed } from "@/lib/auth";
+import { maskName } from "@/lib/mask";
 import DonutChart from "./DonutChart";
 
 const CATEGORY_CHART_COLOR: Record<string, string> = {
@@ -14,14 +15,6 @@ const CATEGORY_CHART_COLOR: Record<string, string> = {
   그란폰도: "var(--chart-granfondo)",
   수영: "var(--chart-swim)",
 };
-
-// 대시보드는 전체 공개로 유지하되, 참가자 이름은 세종철인 인증 전에는 가린다 (2026.09 결정).
-// CSS로 블러만 걸면 페이지 소스에 실명이 그대로 남아 보호가 안 되므로, 인증 전에는 애초에
-// 마스킹된 값만 서버에서 내려보낸다 — 실명은 인증됐을 때만 클라이언트에 도달한다.
-function maskName(name: string): string {
-  if (name.length <= 1) return "●";
-  return name[0] + "●".repeat(name.length - 1);
-}
 
 // Windows 한글 경로 / App Router 캐싱 방어 원칙 (요구사항 정의서 10번) — 항상 최신 데이터로 렌더링
 export const dynamic = "force-dynamic";
