@@ -69,6 +69,14 @@ export default async function AdminSettingsPage() {
         </div>
 
         <div className={CARD}>
+          <p className="font-mono-brand text-[10.5px] tracking-wide uppercase text-accent mb-2">방문자 통계</p>
+          <p className="text-sm text-ink-soft mb-3">오늘/누적 방문자수와 일·주·월별 추이를 볼 수 있어요.</p>
+          <Link href="/admin/visitors" className="text-sm font-medium text-accent hover:underline">
+            방문자 통계 보기 →
+          </Link>
+        </div>
+
+        <div className={CARD}>
           <p className="font-mono-brand text-[10.5px] tracking-wide uppercase text-accent mb-2">변경 로그 · IP 추적</p>
           <p className="text-sm text-ink-soft mb-3">
             대회기록·코스 아카이브의 등록/수정/삭제 이력과 IP를 확인하고, 삭제 건은 복구할 수

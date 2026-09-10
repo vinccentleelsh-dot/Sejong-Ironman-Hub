@@ -205,6 +205,23 @@ model CourseAuditLog {
   @@index([createdAt])
 }
 
+// 방문자 통계 — 관리자 페이지의 "오늘 방문자 / 누적 방문자 / 일·주·월별 추이"용 로그.
+// 페이지뷰마다 한 줄씩 쌓는다. visitorId는 개인정보가 아니라 브라우저 쿠키에 심는 익명
+// 랜덤값(uuid)일 뿐 — 이름·이메일 등과 연결하지 않는다. dateKey("YYYY-MM-DD", KST)를
+// 따로 저장해두면 통계 계산할 때 매번 timezone 변환 없이 바로 그룹핑할 수 있다.
+model VisitLog {
+  id String @id @default(cuid())
+
+  visitorId String // 쿠키에 심는 익명 uuid — 같은 방문자의 재방문을 하루 단위로 구분하는 용도
+  path      String
+  dateKey   String // "YYYY-MM-DD" (KST)
+
+  createdAt DateTime @default(now())
+
+  @@index([dateKey])
+  @@index([visitorId])
+}
+
 // 대회기록 감사 로그 — "세종철인 인증" 하나로 전 회원이 열람·수정 가능해지면서, 실수(또는 악의)로
 // 지워지는 걸 대비해 모든 변경을 기록한다. 삭제 건은 스냅샷으로 복구까지 가능하게 한다.
 model CompetitionAuditLog {

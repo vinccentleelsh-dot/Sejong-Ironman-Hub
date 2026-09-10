@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans_KR, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import TopNav from "./TopNav";
+import VisitTracker from "./VisitTracker";
 
 const plexSansKr = IBM_Plex_Sans_KR({
   variable: "--font-body",
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ko" className={`${plexSansKr.variable} ${plexMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
+        <VisitTracker />
         <TopNav />
         {children}
       </body>
