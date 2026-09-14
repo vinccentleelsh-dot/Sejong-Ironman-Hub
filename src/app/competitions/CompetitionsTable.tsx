@@ -208,13 +208,26 @@ function RaceForm({
             </label>
             <label className="flex flex-col gap-1 text-xs text-ink-faint">
               분류
-              <input
+              <select
                 name="category"
-                list="race-category-suggestions"
                 defaultValue={race?.category ?? ""}
                 required
                 className="border border-line rounded-sm px-2 py-1 bg-paper-raised text-sm w-24"
-              />
+              >
+                <option value="" disabled>
+                  선택
+                </option>
+                {/* 기존 기록의 분류가 5개 기준 목록에 없는 특이 케이스라도 조용히 사라지지 않게
+                    보기에 없으면 원래 값을 맨 앞에 끼워 넣는다 (수정 폼에서만 해당). */}
+                {race && !(RACE_CATEGORIES as readonly string[]).includes(race.category) && (
+                  <option value={race.category}>{race.category}</option>
+                )}
+                {RACE_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="flex flex-col gap-1 text-xs text-ink-faint flex-1 min-w-[140px]">
               대회명
@@ -297,12 +310,6 @@ function RaceForm({
               />
             </label>
           </div>
-
-          <datalist id="race-category-suggestions">
-            {RACE_CATEGORIES.map((c) => (
-              <option key={c} value={c} />
-            ))}
-          </datalist>
 
           {error && <p className="text-xs text-pending">{error}</p>}
 
