@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getDashboardStats } from "@/lib/dashboard";
 import { getCompetitionDashboardStats, getRaceParticipationLeaderboard, getMileageLeaderboard } from "@/lib/dashboard-competitions";
-import { getCompetitionRaces } from "@/lib/competitions";
+import { getCompetitionRaces, getRegistrationScheduleThisMonth } from "@/lib/competitions";
 import { RACE_CATEGORY_COLOR, formatTotalKm } from "@/lib/competitions-shared";
 import { nowKst } from "@/lib/now";
 import { isSejongAuthed } from "@/lib/auth";
@@ -181,6 +181,7 @@ export default async function DashboardPage() {
   const raceParticipationLeaderboard = await getRaceParticipationLeaderboard(now.getUTCFullYear());
   const mileageLeaderboard = await getMileageLeaderboard(now.getUTCFullYear());
   const thisMonthRaces = (await getCompetitionRaces(now.getUTCFullYear())).filter((r) => r.month === now.getUTCMonth() + 1);
+  const registrationSchedule = await getRegistrationScheduleThisMonth();
 
   const trainingTotalKm = stats.distances.swimKm + stats.distances.bikeKm + stats.distances.runKm;
   const courseDistances = stats.courseDistances;
@@ -290,6 +291,35 @@ export default async function DashboardPage() {
               아직 세션별 거리 데이터가 입력되지 않았습니다 — 훈련계획 입력 페이지에서 세션마다 종목별 거리를
               등록하면 여기 자동으로 반영됩니다.
             </p>
+          )}
+        </SectionCard>
+
+        {/* Row 4.4 — 이번달 대회 접수일정 (대회가 열리는 달이 아니라 "접수가 이번달에 열리는"
+            대회 기준 — 운영진이 대회별로 입력한 registrationDate로 필터링) */}
+        <SectionCard title={`이번달 대회 접수일정 · ${now.getUTCMonth() + 1}월`} moreHref="/competitions" moreLabel="대회 캘린더 보기">
+          {registrationSchedule.length === 0 ? (
+            <p className="text-sm text-ink-faint">이번 달 예정된 접수일정이 없습니다.</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {registrationSchedule.map((race) => {
+                const c = RACE_CATEGORY_COLOR[race.category] ?? { text: "var(--ink-soft)", bg: "var(--line)" };
+                return (
+                  <li key={race.id} className="py-2 text-sm flex items-center gap-2 flex-wrap">
+                    <span className="font-mono-brand text-accent whitespace-nowrap">
+                      {race.registrationDateLabel || race.registrationDate}
+                    </span>
+                    <span
+                      className="text-[11px] font-medium px-1.5 py-0.5 rounded-sm whitespace-nowrap"
+                      style={{ color: c.text, backgroundColor: c.bg }}
+                    >
+                      {race.category}
+                    </span>
+                    <span className="text-ink font-medium">{race.raceName}</span>
+                    <span className="text-xs text-ink-faint whitespace-nowrap">대회일 {race.dateLabel}</span>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </SectionCard>
 

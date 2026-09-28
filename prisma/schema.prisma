@@ -106,6 +106,9 @@ model CompetitionRace {
   dateLabel String // 원문 그대로 ("1/11(일)", "1/22~25" 같은 기간 표기 포함)
   startDate DateTime // 정렬·필터용으로 파싱한 시작일
 
+  registrationDateLabel String? // 접수일정 원문 표기 ("9/1(월) 10:00~마감시" 등, 선택 입력)
+  registrationDate      DateTime? // 정렬·"이번달 접수" 필터용으로 파싱한 접수 시작일
+
   category String // 수영 / 마라톤 / 철인3종 / 트레일러닝 / 그란폰도 (자유 텍스트 — 새 종목 추가 대비)
   raceName String
   courseDetail String? // 세부종목 (코스 설명)
@@ -124,6 +127,7 @@ model CompetitionRace {
   updatedAt DateTime @updatedAt
 
   @@index([startDate])
+  @@index([registrationDate])
 }
 
 // 운영자 전용 설정값 저장소 — 비밀번호(해시)처럼 배포 후에도 앱 안에서 직접 바꿔야 하는 값.

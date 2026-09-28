@@ -26,6 +26,10 @@ function fieldsFromForm(formData: FormData) {
   return {
     dateLabel: String(formData.get("dateLabel") ?? ""),
     startDate: new Date(`${String(formData.get("startDate"))}T00:00:00.000Z`),
+    registrationDateLabel: str(formData, "registrationDateLabel"),
+    registrationDate: str(formData, "registrationDate")
+      ? new Date(`${str(formData, "registrationDate")}T00:00:00.000Z`)
+      : null,
     category: String(formData.get("category") ?? ""),
     raceName: String(formData.get("raceName") ?? ""),
     courseDetail: str(formData, "courseDetail"),

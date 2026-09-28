@@ -11,6 +11,8 @@ export type CompetitionRaceRow = {
   startDate: string; // ISO yyyy-mm-dd
   year: number; // startDate에서 파생
   month: number; // 1-12, startDate에서 파생
+  registrationDateLabel: string | null; // 접수일정 원문 표기 (선택 입력)
+  registrationDate: string | null; // ISO yyyy-mm-dd — 정렬·"이번달 접수" 필터용
   category: string;
   raceName: string;
   courseDetail: string | null;

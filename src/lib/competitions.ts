@@ -50,6 +50,8 @@ export async function getCompetitionRaces(year?: number): Promise<CompetitionRac
         startDate: r.startDate.toISOString().slice(0, 10),
         year: r.startDate.getUTCFullYear(),
         month: r.startDate.getUTCMonth() + 1,
+        registrationDateLabel: r.registrationDateLabel,
+        registrationDate: r.registrationDate ? r.registrationDate.toISOString().slice(0, 10) : null,
         category: r.category,
         raceName: r.raceName,
         courseDetail: r.courseDetail,
@@ -63,6 +65,19 @@ export async function getCompetitionRaces(year?: number): Promise<CompetitionRac
         isPending,
       };
     });
+}
+
+// 대시보드 "이번달 대회 접수일정" 카드용 — 대회가 열리는 달과 무관하게, 접수 시작일이
+// 이번 달(KST)에 걸리는 대회만 뽑아서 접수일 순으로 보여준다. getCompetitionRaces()는
+// 연도별로만 조회하는데 접수일이 대회 연도와 다를 수 있어(예: 12월 대회의 접수가 11월에
+// 열리는 경우) 전체를 가져와 등록일 기준으로 다시 거른다.
+export async function getRegistrationScheduleThisMonth(): Promise<CompetitionRaceRow[]> {
+  const all = await getCompetitionRaces();
+  const now = nowKst();
+  const monthPrefix = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  return all
+    .filter((r) => r.registrationDate && r.registrationDate.startsWith(monthPrefix))
+    .sort((a, b) => (a.registrationDate as string).localeCompare(b.registrationDate as string));
 }
 
 // 개인 통계 페이지(요구사항 5·7번 연결) — 이 회원 이름이 참가자 목록에 들어간 대회 전체.

@@ -163,6 +163,7 @@ function RaceForm({
 }) {
   const [error, setError] = useState<string | null>(null);
   const dateLabelRef = useRef<HTMLInputElement>(null);
+  const registrationDateLabelRef = useRef<HTMLInputElement>(null);
   return (
     <tr className="bg-accent-soft/40">
       <td colSpan={colSpan} className="p-3">
@@ -204,6 +205,30 @@ function RaceForm({
                 placeholder="달력에서 날짜를 고르면 채워져요"
                 required
                 className="border border-line rounded-sm px-2 py-1 bg-paper-raised text-sm w-32"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-ink-faint">
+              접수일정 선택 <span className="normal-case font-normal">(선택)</span>
+              <input
+                type="date"
+                name="registrationDate"
+                defaultValue={race?.registrationDate ?? ""}
+                onChange={(e) => {
+                  if (registrationDateLabelRef.current) {
+                    registrationDateLabelRef.current.value = e.target.value ? formatDateLabelFromISO(e.target.value) : "";
+                  }
+                }}
+                className="border border-line rounded-sm px-2 py-1 bg-paper-raised text-sm"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-ink-faint">
+              접수일정 표기 <span className="normal-case font-normal">(자동 입력, 수정 가능)</span>
+              <input
+                ref={registrationDateLabelRef}
+                name="registrationDateLabel"
+                defaultValue={race?.registrationDateLabel ?? ""}
+                placeholder="예: 9/1(월) 10시~마감시"
+                className="border border-line rounded-sm px-2 py-1 bg-paper-raised text-sm w-36"
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-ink-faint">
@@ -327,11 +352,11 @@ function RaceForm({
   );
 }
 
-const COL_COUNT = 10; // 월,날짜,대회명,세부종목,참가자,분류,S/B/R,전체,획득고도,관리(수정/삭제)
+const COL_COUNT = 11; // 월,날짜,접수일정,대회명,세부종목,참가자,분류,S/B/R,전체,획득고도,관리(수정/삭제)
 
 // 정렬 가능한 컬럼은 요청받은 4개(월/날짜/분류/전체km)만 — 나머지(대회명·참가자 등)는
 // 정렬해도 크게 쓸모가 없어서 그대로 둔다.
-type SortKey = "month" | "date" | "category" | "totalKm";
+type SortKey = "month" | "date" | "registrationDate" | "category" | "totalKm";
 
 // "1.5(수영)+스카이런 2,917계단"처럼 숫자로 안 떨어지는 표기는 정렬 기준에서 뺀다(가짜
 // 정밀도 금지 원칙과 동일 — 억지로 순서를 매기지 않고, 정렬 시 맨 뒤로 보낸다).
@@ -415,6 +440,12 @@ export default function CompetitionsTable({
           return (r1.month - r2.month) * dir;
         case "date":
           return r1.startDate.localeCompare(r2.startDate) * dir;
+        case "registrationDate": {
+          if (!r1.registrationDate && !r2.registrationDate) return 0;
+          if (!r1.registrationDate) return 1; // 접수일정 없는 대회는 정렬 방향과 무관하게 항상 맨 뒤
+          if (!r2.registrationDate) return -1;
+          return r1.registrationDate.localeCompare(r2.registrationDate) * dir;
+        }
         case "category":
           return r1.category.localeCompare(r2.category, "ko") * dir;
         case "totalKm": {
@@ -480,6 +511,13 @@ export default function CompetitionsTable({
                 dir={sortDir}
                 onClick={() => toggleSort("date")}
               />
+              <SortHeader
+                label="접수일정"
+                className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint whitespace-nowrap"
+                active={sortKey === "registrationDate"}
+                dir={sortDir}
+                onClick={() => toggleSort("registrationDate")}
+              />
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">대회명</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">세부종목</th>
               <th className="px-2 py-2 font-mono-brand text-[10.5px] uppercase text-ink-faint">참가자</th>
@@ -530,6 +568,9 @@ export default function CompetitionsTable({
                     {showMonth ? MONTH_LABELS[race.month - 1] : ""}
                   </td>
                   <td className="px-2 py-2 font-mono-brand text-ink-soft whitespace-nowrap">{race.dateLabel}</td>
+                  <td className="px-2 py-2 font-mono-brand text-ink-soft whitespace-nowrap">
+                    {race.registrationDateLabel || <span className="text-ink-faint">—</span>}
+                  </td>
                   <td className="px-2 py-2 text-ink font-medium">{race.raceName}</td>
                   <td className="px-2 py-2 text-ink-faint max-w-[220px]">{race.courseDetail ?? ""}</td>
                   <td className="px-2 py-2">
