@@ -1,22 +1,19 @@
 import { NextResponse } from "next/server";
-import { isSejongAuthed } from "@/lib/auth";
 import { getCourseDetail } from "@/lib/courses";
 import { buildGpxXml } from "@/lib/course-calc";
 
 export const dynamic = "force-dynamic";
 
+// 코스 아카이브는 열람·다운로드 전부 공개다(2026.09 결정, 다른 코스 아카이브 API와 동일) —
+// 예전에 이 라우트만 세종철인 인증 게이트가 남아있던 걸 여기서 같이 정리한다.
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!(await isSejongAuthed())) {
-    return NextResponse.json({ error: "세종철인 인증이 필요합니다." }, { status: 401 });
-  }
-
   const { id } = await params;
   const detail = await getCourseDetail(id);
   if (!detail) {
     return NextResponse.json({ error: "코스를 찾을 수 없습니다." }, { status: 404 });
   }
 
-  const xml = buildGpxXml(detail.meta.name, detail.track);
+  const xml = buildGpxXml(detail.meta.name, detail.track, detail.cps);
   const safeName = detail.meta.name.trim() || "course";
   const encoded = encodeURIComponent(`${safeName}.gpx`);
 

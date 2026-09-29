@@ -391,14 +391,40 @@ export function segIndexFor(cps: CheckPoint[], km: number): number {
 // 적지만(~900개) 실사용(워치 업로드·다른 지도 앱 가져오기)엔 충분하다.
 // <time> 태그는 일부러 안 넣는다 — track.t는 "원본 업로드 시점의 상대 경과시간"일 뿐 실제
 // 녹화 시각이 아니라서, 시각을 지어내는 것보다 아예 빼는 게 정직하다 (가짜 정밀도 금지 원칙).
-export function buildGpxXml(name: string, track: TrackData): string {
+//
+// CP를 <wpt>로 같이 내보낸다(2026.09 추가) — "파닥 CP 플래너"(padak-trail-cp.netlify.app)
+// 참고: GPX에 체크포인트를 웨이포인트로 박아두면 COROS·Garmin·Suunto 등 러닝워치에
+// 코스로 그대로 불러왔을 때 CP 이름과 (워치가 트랙 위치로 자동 계산하는) 다음 CP까지
+// 거리가 화면에 뜬다 — 컷오프/비고처럼 이름에 다 못 넣는 정보는 <desc>에 넣는다(참고
+// 사이트도 "컷오프·보급 상세는 앱의 CP 설명에" 들어가게 설계했음, 같은 방식을 따름).
+// <wpt>는 GPX 스펙 순서상 <trk>보다 앞에 와야 한다.
+export function buildGpxXml(name: string, track: TrackData, cps?: CheckPoint[]): string {
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const trkpts = track.la
     .map((la, i) => `      <trkpt lat="${la}" lon="${track.lo[i]}"><ele>${track.e[i]}</ele></trkpt>`)
     .join("\n");
+
+  const wpts = (cps ?? [])
+    .map((c) => {
+      const idx = c.idx ?? nearestIdxByKm(track.d, c.km);
+      const la = track.la[idx];
+      const lo = track.lo[idx];
+      const ele = c.ele ?? track.e[idx];
+      const descParts = [`${c.km.toFixed(1)}km`];
+      if (c.cot) descParts.push(`컷오프 ${c.cot}`);
+      else if (c.limMin) descParts.push(`컷오프 ${fmtT(c.limMin)} 경과`);
+      if (c.note) descParts.push(c.note);
+      return `  <wpt lat="${la}" lon="${lo}">
+    <ele>${ele}</ele>
+    <name>${esc(`${c.code} ${c.name}`.trim())}</name>
+    <desc>${esc(descParts.join(" · "))}</desc>
+  </wpt>`;
+    })
+    .join("\n");
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="세종철인 훈련허브" xmlns="http://www.topografix.com/GPX/1/1">
-  <trk>
+${wpts ? wpts + "\n" : ""}  <trk>
     <name>${esc(name)}</name>
     <trkseg>
 ${trkpts}
