@@ -275,6 +275,20 @@ function RaceForm({
           </label>
 
           <label className="flex flex-col gap-1 text-xs text-ink-faint">
+            대회 홈페이지 <span className="normal-case font-normal">(선택 — 입력하면 대회명 옆에 🔗 링크가 떠요)</span>
+            {/* type="url"로 하면 "www.race.com"처럼 프로토콜 없이 입력 시 브라우저 자체
+                검증이 저장을 조용히 막아버린다(서버에서 https:// 자동으로 붙여주는 로직이
+                있어도 거기까지 못 감) — 그래서 그냥 text로 두고 서버 쪽 보정에 맡긴다. */}
+            <input
+              type="text"
+              name="websiteUrl"
+              defaultValue={race?.websiteUrl ?? ""}
+              placeholder="예: https://www.runningkorea.co.kr/... 또는 www.race.com"
+              className="border border-line rounded-sm px-2 py-1 bg-paper-raised text-sm"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1 text-xs text-ink-faint">
             참가자 (콤마로 구분, 미정이면 비워두기 — 표에서 "+ 참가"로도 추가 가능)
             <input
               name="participantsRaw"
@@ -571,7 +585,20 @@ export default function CompetitionsTable({
                   <td className="px-2 py-2 font-mono-brand text-ink-soft whitespace-nowrap">
                     {race.registrationDateLabel || <span className="text-ink-faint">—</span>}
                   </td>
-                  <td className="px-2 py-2 text-ink font-medium">{race.raceName}</td>
+                  <td className="px-2 py-2 text-ink font-medium">
+                    {race.raceName}
+                    {race.websiteUrl && (
+                      <a
+                        href={race.websiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="대회 홈페이지 새 창으로 열기"
+                        className="ml-1 text-accent hover:underline"
+                      >
+                        🔗
+                      </a>
+                    )}
+                  </td>
                   <td className="px-2 py-2 text-ink-faint max-w-[220px]">{race.courseDetail ?? ""}</td>
                   <td className="px-2 py-2">
                     <Participants race={race} members={members} />

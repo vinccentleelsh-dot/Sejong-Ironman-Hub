@@ -174,9 +174,11 @@ function EditForm({
             <label className="flex flex-col gap-1 text-xs text-ink-faint">
               날짜
               <input
-                disabled
-                value={fmtDate(row.date)}
-                className="border border-line rounded-sm px-2 py-1.5 bg-line/30 text-ink-soft text-sm w-32"
+                type="date"
+                name="date"
+                defaultValue={row.date}
+                required
+                className="border border-line rounded-sm px-2 py-1.5 bg-paper-raised text-sm w-36"
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-ink-faint">

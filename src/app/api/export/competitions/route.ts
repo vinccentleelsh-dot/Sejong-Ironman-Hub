@@ -21,6 +21,7 @@ export async function GET() {
     r.registrationDateLabel ?? "",
     r.category,
     r.raceName,
+    r.websiteUrl ?? "",
     r.courseDetail ?? "",
     r.swimKm ?? "",
     r.bikeKm ?? "",
@@ -31,7 +32,7 @@ export async function GET() {
   ]);
 
   const csv = toCsv(
-    ["연도", "월", "날짜", "접수일정", "분류", "대회명", "세부종목", "Swim(km)", "Bike(km)", "Run(km)", "전체(km)", "획득고도(m)", "참가자"],
+    ["연도", "월", "날짜", "접수일정", "분류", "대회명", "홈페이지", "세부종목", "Swim(km)", "Bike(km)", "Run(km)", "전체(km)", "획득고도(m)", "참가자"],
     rows
   );
   const filename = `sejong-triathlon-competitions-${new Date().toISOString().slice(0, 10)}.csv`;

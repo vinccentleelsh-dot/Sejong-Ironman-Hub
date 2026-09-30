@@ -54,6 +54,7 @@ export async function getCompetitionRaces(year?: number): Promise<CompetitionRac
         registrationDate: r.registrationDate ? r.registrationDate.toISOString().slice(0, 10) : null,
         category: r.category,
         raceName: r.raceName,
+        websiteUrl: r.websiteUrl,
         courseDetail: r.courseDetail,
         swimKm: r.swimKm,
         bikeKm: r.bikeKm,

@@ -53,10 +53,13 @@ async function syncAttendance(sessionId: string, formData: FormData) {
 export async function updateSessionAction(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id"));
+  const dateStr = String(formData.get("date") ?? "");
+  if (!dateStr) throw new Error("날짜를 입력해주세요.");
 
   await prisma.trainingSession.update({
     where: { id },
     data: {
+      date: new Date(`${dateStr}T00:00:00.000Z`),
       category: String(formData.get("category")) as SessionCategory,
       title: str(formData, "title"),
       description: str(formData, "description"),

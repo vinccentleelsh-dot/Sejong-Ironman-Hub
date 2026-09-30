@@ -22,6 +22,14 @@ function num(formData: FormData, key: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+// URL은 사람들이 "www.race.com"처럼 프로토콜 없이 쓰는 경우가 많아서, 없으면 https://를
+// 붙여준다 — 안 붙이면 <a href="www.race.com">이 상대경로로 해석돼서 링크가 깨진다.
+function url(formData: FormData, key: string): string | null {
+  const s = str(formData, key);
+  if (!s) return null;
+  return /^https?:\/\//i.test(s) ? s : `https://${s}`;
+}
+
 function fieldsFromForm(formData: FormData) {
   return {
     dateLabel: String(formData.get("dateLabel") ?? ""),
@@ -32,6 +40,7 @@ function fieldsFromForm(formData: FormData) {
       : null,
     category: String(formData.get("category") ?? ""),
     raceName: String(formData.get("raceName") ?? ""),
+    websiteUrl: url(formData, "websiteUrl"),
     courseDetail: str(formData, "courseDetail"),
     swimKm: num(formData, "swimKm"),
     bikeKm: num(formData, "bikeKm"),

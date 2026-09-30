@@ -15,6 +15,7 @@ export type CompetitionRaceRow = {
   registrationDate: string | null; // ISO yyyy-mm-dd — 정렬·"이번달 접수" 필터용
   category: string;
   raceName: string;
+  websiteUrl: string | null; // 대회 홈페이지 URL (선택)
   courseDetail: string | null;
   swimKm: number | null;
   bikeKm: number | null;

@@ -111,6 +111,7 @@ model CompetitionRace {
 
   category String // 수영 / 마라톤 / 철인3종 / 트레일러닝 / 그란폰도 (자유 텍스트 — 새 종목 추가 대비)
   raceName String
+  websiteUrl String? // 대회 홈페이지 URL (선택) — 표에서 대회명 옆 🔗 아이콘으로 바로 링크
   courseDetail String? // 세부종목 (코스 설명)
 
   swimKm Float?
